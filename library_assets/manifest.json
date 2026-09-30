@@ -1,0 +1,68 @@
+[
+  {
+    "code": "sample-01",
+    "label": "Sample 01",
+    "filename": "breast_ultrasound_01.png",
+    "sha256": "9e24f0205e444a05c10703e3b679a09c4584885937e3b6ecd7c5db7338d83b06",
+    "source_filename": "ALWI_000.png",
+    "download_url": "https://data.mendeley.com/public-files/datasets/7fvgj4jsp7/files/e2003afb-11e8-4bc5-8524-61501d8a654c/file_downloaded",
+    "source_url": "https://doi.org/10.17632/7fvgj4jsp7.3",
+    "attribution": "Vallez, Noelia; Bueno, Gloria; Deniz, Oscar; Rienda, Miguel Angel; Pastor, Carlos (2025). BUS-UCLM: Breast ultrasound lesion segmentation dataset, version 3. Mendeley Data. DOI: 10.17632/7fvgj4jsp7.3.",
+    "licence_url": "https://creativecommons.org/licenses/by/4.0/"
+  },
+  {
+    "code": "sample-02",
+    "label": "Sample 02",
+    "filename": "breast_ultrasound_02.png",
+    "sha256": "7f0e84a15922ae72b3744e9d1e28bffc435dbda3aa60e39571a32a422fde0627",
+    "source_filename": "ANAT_000.png",
+    "download_url": "https://data.mendeley.com/public-files/datasets/7fvgj4jsp7/files/8c6cb252-f439-43de-bae0-025d823fbbc3/file_downloaded",
+    "source_url": "https://doi.org/10.17632/7fvgj4jsp7.3",
+    "attribution": "Vallez, Noelia; Bueno, Gloria; Deniz, Oscar; Rienda, Miguel Angel; Pastor, Carlos (2025). BUS-UCLM: Breast ultrasound lesion segmentation dataset, version 3. Mendeley Data. DOI: 10.17632/7fvgj4jsp7.3.",
+    "licence_url": "https://creativecommons.org/licenses/by/4.0/"
+  },
+  {
+    "code": "sample-03",
+    "label": "Sample 03",
+    "filename": "breast_ultrasound_03.png",
+    "sha256": "6b3987f6673974449b0517f940265a22792596eea3a21b6d2c8220c774a77153",
+    "source_filename": "ANFO_000.png",
+    "download_url": "https://data.mendeley.com/public-files/datasets/7fvgj4jsp7/files/cdcf382c-0f6d-4db9-a9c9-0ddb8009bae7/file_downloaded",
+    "source_url": "https://doi.org/10.17632/7fvgj4jsp7.3",
+    "attribution": "Vallez, Noelia; Bueno, Gloria; Deniz, Oscar; Rienda, Miguel Angel; Pastor, Carlos (2025). BUS-UCLM: Breast ultrasound lesion segmentation dataset, version 3. Mendeley Data. DOI: 10.17632/7fvgj4jsp7.3.",
+    "licence_url": "https://creativecommons.org/licenses/by/4.0/"
+  },
+  {
+    "code": "sample-04",
+    "label": "Sample 04",
+    "filename": "breast_ultrasound_04.png",
+    "sha256": "81b9ca7e71a996bb9a01d46ecfc93a7da8528ceeec60c723e59c0c83f0f41732",
+    "source_filename": "ASSC_000.png",
+    "download_url": "https://data.mendeley.com/public-files/datasets/7fvgj4jsp7/files/fc59a1f9-137d-47dc-9b7b-99c6b74d3c05/file_downloaded",
+    "source_url": "https://doi.org/10.17632/7fvgj4jsp7.3",
+    "attribution": "Vallez, Noelia; Bueno, Gloria; Deniz, Oscar; Rienda, Miguel Angel; Pastor, Carlos (2025). BUS-UCLM: Breast ultrasound lesion segmentation dataset, version 3. Mendeley Data. DOI: 10.17632/7fvgj4jsp7.3.",
+    "licence_url": "https://creativecommons.org/licenses/by/4.0/"
+  },
+  {
+    "code": "sample-05",
+    "label": "Sample 05",
+    "filename": "breast_ultrasound_05.png",
+    "sha256": "b84ccec126f71ea5eda9c79376b4ed61c59e72ac6a172a08a96ab670d43c50ac",
+    "source_filename": "CHCO_000.png",
+    "download_url": "https://data.mendeley.com/public-files/datasets/7fvgj4jsp7/files/27c6fcde-185b-46ac-bd07-bac3011628cf/file_downloaded",
+    "source_url": "https://doi.org/10.17632/7fvgj4jsp7.3",
+    "attribution": "Vallez, Noelia; Bueno, Gloria; Deniz, Oscar; Rienda, Miguel Angel; Pastor, Carlos (2025). BUS-UCLM: Breast ultrasound lesion segmentation dataset, version 3. Mendeley Data. DOI: 10.17632/7fvgj4jsp7.3.",
+    "licence_url": "https://creativecommons.org/licenses/by/4.0/"
+  },
+  {
+    "code": "sample-06",
+    "label": "Sample 06",
+    "filename": "breast_ultrasound_06.bmp",
+    "source_filename": "originals/benign/us1.bmp",
+    "sha256": "1cdd37c30458a94d27bb553b41a4de376bc58c4017b26d3df2ece140204f2622",
+    "source_url": "https://doi.org/10.17632/wmy84gzngw.1",
+    "download_url": "https://data.mendeley.com/public-files/datasets/wmy84gzngw/files/b63daee9-78de-4122-8475-9b3aa22ffd64/file_downloaded",
+    "attribution": "Rodrigues, Paulo Sergio (2017). Breast Ultrasound Image. Mendeley Data, V1. DOI: 10.17632/wmy84gzngw.1.",
+    "licence_url": "https://creativecommons.org/licenses/by/4.0/"
+  }
+]

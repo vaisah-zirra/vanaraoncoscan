@@ -1,0 +1,22 @@
+.venv/
+.env
+__pycache__/
+*.py[cod]
+media/
+staticfiles/
+*.sqlite3
+
+.mysql-admin.env
+.demo-credentials.txt
+.env.*
+!.env.example
+!.env.production.example
+*.pem
+*.key
+*.sql
+*.sql.gz
+backups/
+output/
+*.log
+# Private product planning document
+VanaraOncoScan_MVP_Blueprint_v1.0.docx

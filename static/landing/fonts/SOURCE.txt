@@ -1,0 +1,5 @@
+Satoshi by Indian Type Foundry / Fontshare.
+Official webfont source: https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700,900&display=swap
+Font information: https://www.fontshare.com/fonts/satoshi
+Licence: https://www.fontshare.com/licenses/itf-ffl
+Files unchanged.

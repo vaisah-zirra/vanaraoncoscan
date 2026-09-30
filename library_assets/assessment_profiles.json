@@ -1,0 +1,101 @@
+{
+  "sample-01": {
+    "image_sha256": "9e24f0205e444a05c10703e3b679a09c4584885937e3b6ecd7c5db7338d83b06",
+    "mask_sha256": "27db179b178577c4c001dfa014e2563fc84fa0be6fa88504a732d208dbdc7629",
+    "mask_source_filename": "ALWI_000.png",
+    "mask_download_url": "https://data.mendeley.com/public-files/datasets/7fvgj4jsp7/files/1ce837f6-fb55-44ba-b83e-8ff9316002b0/file_downloaded",
+    "source_label": "benign",
+    "boxes": [
+      {
+        "x": 335,
+        "y": 43,
+        "width": 228,
+        "height": 138,
+        "label_y": 10,
+        "text_x": 343,
+        "text_y": 29
+      }
+    ],
+    "limitations": "A single selected image cannot establish a complete clinical diagnosis. Interpret this assessment alongside the full examination, symptoms and any prior imaging.",
+    "disposition": "NON_SUSPICIOUS",
+    "findings": "A localized region is identified in the image and marked for review. The selected assessment follows a non-suspicious pathway.",
+    "impression": "Non-suspicious assessment within the scope of the selected image. This does not exclude all breast disease.",
+    "recommendation": "Correlate with the clinical examination and document the follow-up plan. Persistent or changing symptoms require reassessment even when the selected image is non-suspicious."
+  },
+  "sample-02": {
+    "image_sha256": "7f0e84a15922ae72b3744e9d1e28bffc435dbda3aa60e39571a32a422fde0627",
+    "mask_sha256": "897058bb2699edd444434110879417210fd8b854c0d5fcfd7204aa95ce22d311",
+    "mask_source_filename": "ANAT_000.png",
+    "mask_download_url": "https://data.mendeley.com/public-files/datasets/7fvgj4jsp7/files/dd6c2f67-22ed-484a-9e70-e1d7cfe41b71/file_downloaded",
+    "source_label": "normal",
+    "boxes": [],
+    "limitations": "A single selected image cannot establish a complete clinical diagnosis. Interpret this assessment alongside the full examination, symptoms and any prior imaging.",
+    "disposition": "NON_SUSPICIOUS",
+    "findings": "No focal region is marked in the available source image annotation. The selected assessment follows a non-suspicious pathway.",
+    "impression": "Non-suspicious assessment within the scope of the selected image. This does not exclude all breast disease.",
+    "recommendation": "Correlate with the clinical examination and document the follow-up plan. Persistent or changing symptoms require reassessment even when the selected image is non-suspicious."
+  },
+  "sample-03": {
+    "image_sha256": "6b3987f6673974449b0517f940265a22792596eea3a21b6d2c8220c774a77153",
+    "mask_sha256": "897058bb2699edd444434110879417210fd8b854c0d5fcfd7204aa95ce22d311",
+    "mask_source_filename": "ANFO_000.png",
+    "mask_download_url": "https://data.mendeley.com/public-files/datasets/7fvgj4jsp7/files/4bdd8930-0a4f-4f6f-a13b-873fbf6a3293/file_downloaded",
+    "source_label": "normal",
+    "boxes": [],
+    "limitations": "A single selected image cannot establish a complete clinical diagnosis. Interpret this assessment alongside the full examination, symptoms and any prior imaging.",
+    "disposition": "NON_SUSPICIOUS",
+    "findings": "No focal region is marked in the available source image annotation. The selected assessment follows a non-suspicious pathway.",
+    "impression": "Non-suspicious assessment within the scope of the selected image. This does not exclude all breast disease.",
+    "recommendation": "Correlate with the clinical examination and document the follow-up plan. Persistent or changing symptoms require reassessment even when the selected image is non-suspicious."
+  },
+  "sample-04": {
+    "image_sha256": "81b9ca7e71a996bb9a01d46ecfc93a7da8528ceeec60c723e59c0c83f0f41732",
+    "mask_sha256": "e28c87c44bffc1acd2713a83ae4079e58445b88c537945d7fa09e55d80419472",
+    "mask_source_filename": "ASSC_000.png",
+    "mask_download_url": "https://data.mendeley.com/public-files/datasets/7fvgj4jsp7/files/dd417225-137b-4d25-9929-a027abd0d7a4/file_downloaded",
+    "source_label": "benign",
+    "boxes": [
+      {
+        "x": 329,
+        "y": 58,
+        "width": 171,
+        "height": 106,
+        "label_y": 25,
+        "text_x": 337,
+        "text_y": 44
+      }
+    ],
+    "limitations": "A single selected image cannot establish a complete clinical diagnosis. Interpret this assessment alongside the full examination, symptoms and any prior imaging.",
+    "disposition": "UNCERTAIN",
+    "findings": "A focal region is highlighted for review. The assessment is being held for specialist interpretation before a final care pathway is chosen.",
+    "impression": "Indeterminate assessment requiring specialist review.",
+    "recommendation": "Obtain a specialist opinion on the highlighted region and its relevance to the presenting concern. Retain the case as awaiting review until the specialist recommendation is signed."
+  },
+  "sample-05": {
+    "image_sha256": "b84ccec126f71ea5eda9c79376b4ed61c59e72ac6a172a08a96ab670d43c50ac",
+    "mask_sha256": "1135c9e6425ebbbedd500ebf2cc72b04140f89b93c42efb731dc2347b4cbb66f",
+    "mask_source_filename": "CHCO_000.png",
+    "mask_download_url": "https://data.mendeley.com/public-files/datasets/7fvgj4jsp7/files/b8f28de1-7a3b-48fb-bb45-ddd59965ec6b/file_downloaded",
+    "source_label": "malignant",
+    "boxes": [
+      {
+        "x": 266,
+        "y": 133,
+        "width": 134,
+        "height": 109,
+        "label_y": 100,
+        "text_x": 274,
+        "text_y": 119
+      }
+    ],
+    "limitations": "A single selected image cannot establish a complete clinical diagnosis. Interpret this assessment alongside the full examination, symptoms and any prior imaging.",
+    "disposition": "SUSPICIOUS",
+    "findings": "A focal region is highlighted for targeted review. The finding warrants further evaluation rather than routine closure of the case.",
+    "impression": "Suspicious finding. Further specialist breast assessment is recommended; malignancy is not confirmed by this result.",
+    "recommendation": "Review the image and presenting history, then confirm the appropriate referral for specialist breast assessment. The specialist should determine the need for additional imaging or tissue sampling."
+  },
+  "sample-06": {
+    "quality_only": true,
+    "image_sha256": "1cdd37c30458a94d27bb553b41a4de376bc58c4017b26d3df2ece140204f2622"
+  }
+}

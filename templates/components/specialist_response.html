@@ -1,0 +1,4 @@
+<section class="panel detail" style="margin:24px 0"><p class="eyebrow">SPECIALIST INPUT</p><h2>Specialist response & recommendation</h2>
+{% if signed %}{% for review in signed %}<span class="badge follow_up">Signed review</span><dl><dt>Assessment</dt><dd class="clinical-copy">{{ review.assessment|linebreaksbr }}</dd><dt>Recommendation</dt><dd class="clinical-copy">{{ review.recommendation|linebreaksbr }}</dd></dl><p class="helper">{{ review.reviewer.get_full_name|default:review.reviewer.username }} · {{ review.signed_at|date:'d M Y, H:i' }}</p>{% endfor %}
+{% elif response %}<span class="badge review_pending">Automatic response</span><dl>{% for label,text in response %}<dt>{{ label }}</dt><dd class="clinical-copy">{{ text|linebreaksbr }}</dd>{% endfor %}</dl><p class="helper">Prototype specialist response · No specialist opinion has been signed.</p>
+{% else %}<p class="helper">A specialist response is not available at this stage.</p>{% endif %}</section>
