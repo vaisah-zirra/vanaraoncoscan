@@ -18,7 +18,11 @@ from apps.accounts.public_views import landing
 
 from django.urls import include
 
+from .seo import robots, sitemap
+
 urlpatterns = [
+    path('robots.txt', robots, name='robots'),
+    path('sitemap.xml', sitemap, name='sitemap'),
     path('', include('apps.validation.urls')),
     path('', landing, name='landing'),
     path('referrals/', referral_list, name='referral-list'),
