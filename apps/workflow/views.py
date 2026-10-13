@@ -36,7 +36,14 @@ def clinician_review(request, pk):
         suggestion = 'Consider specialist review to resolve uncertainty before deciding the ongoing care plan.'
     from apps.clinical.report_library import report_for_assessment
     report = report_for_assessment(assessment, getattr(case, 'attachment', None)) if quality and quality.adequate else None
-    if report:
+    signed_review = case.specialistreview_set.filter(signed_at__isnull=False).order_by('-signed_at').first()
+    if signed_review and signed_review.birads:
+        from apps.clinical.report_library import BIRADS
+        name = BIRADS.get(signed_review.birads, ('',))[0]
+        first = (signed_review.recommendation or '').strip().splitlines()[0].lstrip('0123456789. ') if signed_review.recommendation else ''
+        suggestion = (f"Specialist second read: BI-RADS {signed_review.birads} – {name}. {first} "
+                      "Choose the care pathway that implements the specialist recommendation.")
+    elif report:
         b = report['birads']
         lead = f"AI report: BI-RADS {b['category']}{' (provisional)' if b['provisional'] else ''} – {b['name']}. {report['recommendations'][0]}"
         suggestion = lead + ' ' + suggestion

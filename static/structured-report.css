@@ -91,3 +91,10 @@
 .sp-stages li.done{color:#19765b;border-color:#cfe6da;background:#eef7f2}
 .sp-stages li.current{color:#fff;background:#c48a1c;border-color:#c48a1c}
 .sp-stage-label{font-size:11.5px!important;color:#8a5a0b!important;margin-top:6px!important}
+
+/* Specialist result arriving: scroll target + highlight */
+.case-sections>.specialist-panel:first-child,.review-context>.specialist-panel:first-child{margin-top:0!important}
+.specialist-panel.is-signed{border-left:4px solid #19765b}
+.specialist-panel:target{scroll-margin-top:24px;animation:sp-arrive 2.4s ease}
+@keyframes sp-arrive{0%,30%{box-shadow:0 0 0 4px #4fc49766,0 18px 50px #0d302922}100%{box-shadow:none}}
+@media (prefers-reduced-motion:reduce){.specialist-panel:target{animation:none}}

@@ -33,7 +33,7 @@ document.querySelectorAll('[data-review-status]').forEach(panel => {
         stopped = true; paint('signed');
         if (label) label.textContent = 'Report signed';
         showToast(`Teleradiology report received${data.reviewer ? ' from ' + data.reviewer : ''}${data.birads ? ' · BI-RADS ' + data.birads : ''}`);
-        setTimeout(() => location.reload(), 1800);
+        setTimeout(() => { history.replaceState(null, '', location.pathname + location.search + '#specialist-response'); location.reload(); }, 1800);
         return;
       }
       paint(data.stage || 'queued');
