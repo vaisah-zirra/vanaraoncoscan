@@ -152,15 +152,9 @@ class NumberedCanvas(canvas.Canvas):
         for state in self.states:
             self.__dict__.update(state)
             self.setFillColor(TEAL); self.setFont('Report-Bold',13)
-            # Display the approved artwork directly; clip away the presentation sheet.
-            logo = Path(__file__).resolve().parents[2] / 'static/brand/approved-brand-sheet.png'
-            scale = 160 / 1125
-            left, bottom = 42, A4[1]-52
-            self.saveState()
-            clip = self.beginPath(); clip.rect(left, bottom, 160, 300*scale)
-            self.clipPath(clip, stroke=0, fill=0)
-            self.drawImage(str(logo), left-90*scale, bottom+(190+300-1254)*scale, width=1254*scale, height=1254*scale)
-            self.restoreState()
+            # Approved artwork, background removed (static/brand/vanaraoncoscan-logo.png).
+            logo = Path(__file__).resolve().parents[2] / 'static/brand/vanaraoncoscan-logo.png'
+            self.drawImage(str(logo), 42, A4[1]-50, width=150, height=150*166/640, mask='auto')
             self.setFillColor(MUTED); self.setFont('Report',7)
             self.drawRightString(A4[0]-42,A4[1]-32,'BREAST ULTRASOUND | CASE REPORT')
             self.drawRightString(A4[0]-42,A4[1]-44,self.meta['reference'])
@@ -513,6 +507,6 @@ def render_report(data):
         story.append(p('Image source: ' + sample.attribution + ' Licence: CC BY 4.0 (' + sample.licence_url + '). Original pixels unchanged.', 'small'))
 
     doc = SimpleDocTemplate(output, pagesize=A4, rightMargin=42, leftMargin=42, topMargin=70, bottomMargin=62,
-                            title='VanaraOncoScan breast ultrasound report - ' + case.patient.reference, author='Vanara Health Technologies', pageCompression=1)
+                            title='VanaraOncoScan breast ultrasound report - ' + case.patient.reference, author='Vanara Multi-Ventures', pageCompression=1)
     doc.build(story, canvasmaker=lambda *a, **kw: NumberedCanvas(*a, report_meta={'reference': case.patient.reference + ' | ' + str(case.pk)[:8].upper(), 'revision': data['revision']}, **kw))
     return output.getvalue()

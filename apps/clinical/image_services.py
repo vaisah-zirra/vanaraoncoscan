@@ -24,7 +24,7 @@ def attach_image(*, user, case_id, sample_id, expected_sample_id=None):
         raise ValidationError('The attachment changed in another window. Reload this page before continuing.')
     sample = UltrasoundSample.objects.filter(pk=sample_id, active=True, licence_verified=True).first()
     if not sample or not sample.image or not sample.image.storage.exists(sample.image.name):
-        raise ValidationError('This image is unavailable. Please select another sample.')
+        raise ValidationError('This image is unavailable. Please select another study.')
     if current and current.sample_id == sample.pk:
         return current
     previous = current.sample_id if current else None

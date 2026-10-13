@@ -53,3 +53,4 @@
 .tr-choice span{flex:1;text-align:left}
 .nav-item{white-space:nowrap}
 .tr-draft:disabled{opacity:1;color:#19765b;background:#eef7f4;border-color:#bfe0d2;border-style:solid;cursor:default}
+.tr-layout>*{min-width:0}.tr-viewer .panel-heading{flex-wrap:wrap;gap:8px}@media (max-width:760px){.tr-viewer{padding:16px}}

@@ -31,7 +31,7 @@ def signup(request):
             form.add_error(None, 'Unable to create this account. If you have already registered, please log in.')
         else:
             login(request, user, backend='apps.accounts.backends.EmailBackend')
-            messages.success(request, 'Welcome. Your own demo workspace is ready. Start a case to begin your walkthrough.')
+            messages.success(request, 'Welcome. Your workspace is ready. Start a case to begin your walkthrough.')
             return redirect('dashboard')
     return render(request, 'registration/signup.html', {'form':form})
 

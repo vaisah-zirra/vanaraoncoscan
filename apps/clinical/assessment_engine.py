@@ -17,9 +17,9 @@ def profile_for(sample):
         profiles = json.loads(path.read_text(encoding='utf-8'))
         profile = profiles[sample.code]
     except (OSError, ValueError, KeyError) as exc:
-        raise ValidationError('An assessment profile is not available for this sample yet.') from exc
+        raise ValidationError('This study cannot be analysed yet. Please choose another image.') from exc
     if profile['image_sha256'] != sample.sha256:
-        raise ValidationError('The sample does not match its assessment profile. Please contact the administrator.')
+        raise ValidationError('The study failed an integrity check. Please contact the administrator.')
     return profile
 
 
@@ -55,7 +55,7 @@ def inspect_image(sample):
 def generate_result(sample):
     profile = profile_for(sample)
     if profile.get('quality_only'):
-        raise ValidationError('This sample is reserved for the image-quality pathway.')
+        raise ValidationError('This image cannot be analysed. Please choose another image.')
     result = dict(profile)
     from apps.clinical.report_library import REPORT_VERSION
     result.update({'sample_id':sample.pk, 'sample_code':sample.code, 'filename':sample.filename, 'width':sample.width,
