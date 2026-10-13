@@ -13,6 +13,9 @@ from apps.workflow.services import confirm_decision
 @require_http_methods(['GET','POST'])
 def clinician_review(request, pk):
     case = get_object_or_404(scoped_cases(request.user), pk=pk)
+    from apps.workflow.teleradiology import resolve_simulated_reviews
+    if request.method == 'GET' and resolve_simulated_reviews(case):
+        case = get_object_or_404(scoped_cases(request.user), pk=pk)
     assessment = AIAssessment.objects.filter(case=case).first()
     quality = QualityAssessment.objects.filter(case=case).first()
     decisions = case.clinical_decisions.select_related('actor')
@@ -31,6 +34,12 @@ def clinician_review(request, pk):
         suggestion = 'Consider referral for further assessment. Confirm the destination and urgency after clinical review.'
     else:
         suggestion = 'Consider specialist review to resolve uncertainty before deciding the ongoing care plan.'
+    from apps.clinical.report_library import report_for_assessment
+    report = report_for_assessment(assessment, getattr(case, 'attachment', None)) if quality and quality.adequate else None
+    if report:
+        b = report['birads']
+        lead = f"AI report: BI-RADS {b['category']}{' (provisional)' if b['provisional'] else ''} – {b['name']}. {report['recommendations'][0]}"
+        suggestion = lead + ' ' + suggestion
     if request.method == 'POST' and form.is_valid():
         try:
             confirm_decision(user=request.user, case_id=pk, data=request.POST)

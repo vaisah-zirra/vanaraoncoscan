@@ -44,7 +44,7 @@ def register(request, data):
     name = data['full_name'].split(' ', 1)
     user = get_user_model().objects.create_user(username='mvp_'+hashlib.sha256(email.encode()).hexdigest(), email=email,
         password=data['password1'], first_name=name[0], last_name=name[1] if len(name)>1 else '')
-    facility = Facility.objects.create(name=f"{data['organisation'][:145]} · Demo workspace", slug='mvp-'+uuid.uuid4().hex, is_demo=True)
+    facility = Facility.objects.create(name=f"{data['organisation'][:145]} · Pilot workspace", slug='mvp-'+uuid.uuid4().hex, is_demo=True)
     Membership.objects.create(user=user, facility=facility, role=Membership.Role.FACILITY)
     source, campaign = attribution(request)
     participant = Participant.objects.create(user=user, facility=facility, role=data['role'], organisation=data['organisation'], source=source,

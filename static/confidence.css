@@ -15,3 +15,9 @@
 .care-status-strip>span{display:grid;place-items:center;flex:0 0 28px;height:28px;border-radius:50%;background:#fff;color:#147c70;font-size:17px}
 .care-status-strip p{margin:0;line-height:1.6}
 @media(max-width:600px){.confidence-card:not(.confidence-compact){padding:20px;gap:18px;align-items:flex-start}.confidence-card:not(.confidence-compact) .confidence-ring{width:82px;height:82px;flex-basis:82px;margin-top:10px}.confidence-card:not(.confidence-compact) .confidence-copy>strong{font-size:20px}.confidence-card:not(.confidence-compact) .confidence-copy p:not(.eyebrow){font-size:11px}.confidence-copy .eyebrow{font-size:8px;letter-spacing:1px}.confidence-caption{font-size:10px}.confidence-caption b{margin:5px 0 0}.assessment-key{padding:16px}}
+/* Decimal scores: keep the value inside the arc at every size */
+.confidence-compact .confidence-ring{width:52px;height:52px;flex-basis:52px}
+.confidence-compact .confidence-ring>span{font-size:12px;letter-spacing:-.3px}
+.confidence-compact .confidence-ring small{font-size:7px;margin-left:0}
+.confidence-card:not(.confidence-compact) .confidence-ring>span{font-size:28px;letter-spacing:-.8px}
+.confidence-card:not(.confidence-compact) .confidence-ring small{font-size:13px}

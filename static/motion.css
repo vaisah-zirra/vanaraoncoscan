@@ -1,0 +1,11 @@
+/* Global toasts and gentle page motion */
+main>.toast-message{position:fixed;right:24px;bottom:24px;z-index:50;max-width:min(420px,calc(100vw - 32px));margin:0;display:flex;gap:10px;align-items:flex-start;padding:14px 16px 14px 14px;background:#183d3d;color:#fff;border:0;border-radius:12px;font-size:13px;line-height:1.5;box-shadow:0 18px 50px #0d302940;animation:toast-in .45s cubic-bezier(.2,.8,.2,1) both}
+main>.toast-message::before{content:'✓';display:grid;place-items:center;width:22px;height:22px;border-radius:50%;background:#4fc497;color:#0d211b;font-weight:800;font-size:12px;flex-shrink:0}
+main>.toast-message.leaving{animation:toast-out .35s ease forwards}
+main>.toast-message+.toast-message{bottom:92px}
+@keyframes toast-in{from{opacity:0;transform:translateY(16px) scale(.98)}}
+@keyframes toast-out{to{opacity:0;transform:translateY(12px)}}
+main>.page-heading,main>.panel,main>section,main>.confidence-card{animation:page-rise .45s ease both}
+@keyframes page-rise{from{opacity:0;transform:translateY(6px)}}
+@media (max-width:600px){main>.toast-message{right:16px;left:16px;bottom:16px}}
+@media (prefers-reduced-motion:reduce){main>.toast-message,main>.toast-message.leaving,main>.page-heading,main>.panel,main>section,main>.confidence-card{animation:none}}

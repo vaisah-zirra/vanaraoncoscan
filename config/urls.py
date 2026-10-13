@@ -1,3 +1,4 @@
+from apps.workflow import teleradiology
 from django.contrib import admin
 from apps.accounts.views import DemoLoginView
 from django.contrib.auth import views as auth_views
@@ -36,6 +37,9 @@ urlpatterns = [
     path('cases/<uuid:pk>/images/', image_upload, name='image-upload'),
     path('library/images/<int:pk>/', sample_image, name='sample-image'),
     path('cases/<uuid:pk>/try-another/', try_another_sample, name='try-another-sample'),
+    path('teleradiology/', teleradiology.review_queue, name='teleradiology-queue'),
+    path('teleradiology/reviews/<int:pk>/', teleradiology.review_detail, name='teleradiology-review'),
+    path('teleradiology/reviews/<int:pk>/status/', teleradiology.review_status, name='teleradiology-status'),
     path('admin/', admin.site.urls),
     path('accounts/login/', DemoLoginView.as_view(), name='login'),
     path('accounts/logout/', auth_views.LogoutView.as_view(), name='logout'),

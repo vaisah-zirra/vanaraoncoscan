@@ -1,1 +1,9 @@
-<dialog id="processing-dialog" class="processing-dialog" aria-labelledby="processing-title"><div class="processing-orbit" aria-hidden="true"></div><p class="eyebrow">ASSESSMENT WORKSPACE</p><h2 id="processing-title">Checking the attached image</h2><p id="processing-description" role="status" aria-live="polite">Verifying the file and preparing the next step.</p><div class="processing-line"><span></span></div><small>Please keep this window open.</small></dialog>
+<dialog id="processing-dialog" class="processing-dialog ai-dialog" aria-labelledby="processing-title">
+<div class="ai-scan" aria-hidden="true">{% if case.attachment %}<img src="{% url 'sample-image' case.attachment.sample.pk %}" alt="">{% endif %}<span class="ai-grid"></span><span class="ai-scanline"></span><span class="ai-reticle"></span></div>
+<p class="eyebrow" id="processing-eyebrow">VOS-BUS v0.9.4 · INVESTIGATIONAL</p>
+<h2 id="processing-title">Checking the attached image</h2>
+<ol class="ai-steps" id="ai-steps" aria-live="polite"></ol>
+<div class="ai-progress" aria-hidden="true"><span id="ai-progress-bar"></span></div>
+<div class="ai-meta"><span id="ai-progress-pct" role="status">0%</span><span id="ai-elapsed">0.0 s</span></div>
+<p id="processing-description" class="sr-only" role="status" aria-live="polite"></p>
+<small>Please keep this window open.</small></dialog>

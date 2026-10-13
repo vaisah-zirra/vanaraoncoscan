@@ -18,6 +18,9 @@ def scoped_cases(user):
 
 @login_required
 def dashboard(request):
+    from core.permissions import reviewer_facility_ids
+    if not facility_ids_for(request.user).exists() and reviewer_facility_ids(request.user).exists():
+        return redirect('teleradiology-queue')
     all_cases = scoped_cases(request.user)
     counts = all_cases.aggregate(total=Count('pk'), review=Count('pk', filter=Q(status=Case.Status.REVIEW_PENDING)), referrals=Count('pk', filter=Q(status=Case.Status.REFERRAL_CONFIRMED)), followup=Count('pk', filter=Q(status=Case.Status.FOLLOW_UP)))
     q = request.GET.get('q', '').strip()[:120]
@@ -51,6 +54,9 @@ def dashboard(request):
 @login_required
 def case_detail(request, pk):
     case = get_object_or_404(scoped_cases(request.user), pk=pk)
+    from apps.workflow.teleradiology import resolve_simulated_reviews
+    if resolve_simulated_reviews(case):
+        case = get_object_or_404(scoped_cases(request.user), pk=pk)
     return render(request, 'case_detail.html', {'case': case, 'events': case.caseevent_set.all(), 'reviews': case.specialistreview_set.select_related('reviewer').all(), 'followups': case.followup_set.all(), 'can_edit_image': case.status in ('DRAFT', 'QUALITY_PENDING')})
 
 

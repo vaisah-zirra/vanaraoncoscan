@@ -57,8 +57,10 @@ def generate_result(sample):
     if profile.get('quality_only'):
         raise ValidationError('This sample is reserved for the image-quality pathway.')
     result = dict(profile)
-    result.update({'sample_id':sample.pk, 'filename':sample.filename, 'width':sample.width,
-                   'height':sample.height, 'engine':ENGINE_VERSION, 'source_url':sample.source_url})
+    from apps.clinical.report_library import REPORT_VERSION
+    result.update({'sample_id':sample.pk, 'sample_code':sample.code, 'filename':sample.filename, 'width':sample.width,
+                   'height':sample.height, 'engine':ENGINE_VERSION, 'source_url':sample.source_url,
+                   'report_version':REPORT_VERSION})
     for box in result.get('boxes', []):
         if (box['x'] < 0 or box['y'] < 0 or box['width'] <= 0 or box['height'] <= 0 or
             box['x']+box['width'] > sample.width or box['y']+box['height'] > sample.height):

@@ -47,6 +47,8 @@ def assessment_result(request,pk):
         return redirect('case-detail',pk=pk)
     from apps.validation.services import record_view
     record_view(request.user, case, 'assessment')
+    from apps.clinical.report_library import report_for_assessment
     return render(request,'assessment_result.html',{'case':case,'assessment':assessment,'result':assessment.details,
+        'report':report_for_assessment(assessment, getattr(case,'attachment',None)),
         'review_needed':assessment.disposition in ('UNCERTAIN','REVIEW_REQUIRED'),
         'suspicious':assessment.disposition=='SUSPICIOUS'})

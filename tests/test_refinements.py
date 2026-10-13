@@ -28,7 +28,7 @@ class RefinementTests(TestCase):
         response = self.client.get(reverse('case-detail',args=[case.pk]))
         self.assertContains(response,'aria-current="step"',count=1)
         self.assertContains(response,'No specialist opinion has been signed')
-        self.assertContains(response,'Workflow prototype · Not for clinical diagnosis')
+        self.assertContains(response,'Investigational AI · Not for clinical diagnosis')
         self.assertNotContains(response,'Synthetic scenario')
         self.assertNotContains(response,'Illustrative demo event')
 

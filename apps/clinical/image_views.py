@@ -46,7 +46,7 @@ def image_upload(request, pk):
     available = [s for s in UltrasoundSample.objects.filter(active=True, licence_verified=True) if s.image and s.image.storage.exists(s.image.name)]
     tried = set(CaseImage.objects.filter(case__patient=case.patient).values_list('sample_id', flat=True))
     tried.update(CaseEvent.objects.filter(case__patient=case.patient, kind__in=['IMAGE_ATTACHED', 'IMAGE_REPLACED']).values_list('details__sample_id', flat=True))
-    samples = [{'id':s.pk, 'label':s.label, 'filename':s.filename, 'size':s.byte_size,
+    samples = [{'id':s.pk, 'label':'Breast US · '+s.study_id, 'filename':s.display_filename, 'size':s.byte_size,
         'format':s.image_format, 'width':s.width, 'height':s.height, 'url':reverse('sample-image', args=[s.pk]),
         'previously_tried':s.pk in tried} for s in available]
     return render(request, 'image_upload.html', {'case':case, 'attachment':attachment, 'samples':samples,
@@ -60,7 +60,7 @@ def sample_image(request, pk):
         raise PermissionDenied
     sample = get_object_or_404(UltrasoundSample, pk=pk, active=True, licence_verified=True)
     try:
-        response = FileResponse(sample.image.open('rb'), content_type='image/bmp' if sample.image_format == 'BMP' else 'image/png', filename=sample.filename)
+        response = FileResponse(sample.image.open('rb'), content_type='image/bmp' if sample.image_format == 'BMP' else 'image/png', filename=sample.display_filename)
     except (FileNotFoundError, OSError, ValueError):
         raise Http404('Image unavailable') from None
     response['Cache-Control'] = 'private, max-age=300'

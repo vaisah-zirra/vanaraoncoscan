@@ -1,0 +1,16 @@
+{% extends 'base.html' %}{% load static %}{% load dashboard_labels %}{% block title %}Teleradiology queue{% endblock %}{% block breadcrumb %}Teleradiology{% endblock %}{% block content %}
+<link rel="stylesheet" href="{% static 'teleradiology.css' %}">
+<div class="page-heading"><div><p class="eyebrow">TELERADIOLOGY · SECOND READ</p><h1>Review queue</h1><p class="subtitle">Studies routed for specialist interpretation, ordered by clinical priority.</p></div><span class="tr-live"><span class="live-dot"></span>{{ pending_count }} awaiting review</span></div>
+<nav class="tr-tabs" aria-label="Queue views"><a href="?tab=pending" class="{% if tab == 'pending' %}active{% endif %}" {% if tab == 'pending' %}aria-current="page"{% endif %}>Awaiting review <b>{{ pending_count }}</b></a><a href="?tab=signed" class="{% if tab == 'signed' %}active{% endif %}" {% if tab == 'signed' %}aria-current="page"{% endif %}>Signed <b>{{ signed_count }}</b></a></nav>
+<section class="panel tr-list">
+{% for row in rows %}<a class="tr-row" href="{% url 'teleradiology-review' row.review.pk %}">
+  <span class="tr-thumb">{% if row.case.attachment %}<img src="{% url 'sample-image' row.case.attachment.sample.pk %}" alt="" loading="lazy">{% else %}<span>No image</span>{% endif %}</span>
+  <span class="tr-main"><strong>{{ row.case.patient.display_name }}</strong><small>{{ row.case.patient.reference }}{% if row.case.attachment %} · {{ row.case.attachment.sample.study_id }}{% endif %} · {{ row.case.patient.facility.name }}</small></span>
+  <span class="tr-ai"><span class="tr-dot" style="background:{{ row.display.color }}"></span><span><strong>{{ row.display.label }}</strong><small>{% if row.report %}AI: BI-RADS {{ row.report.birads.category }}{% if row.report.birads.provisional %} (provisional){% endif %}{% endif %}{% if row.display.has_score %} · {{ row.display.score }}%{% endif %}</small></span></span>
+  {% if tab == 'pending' %}<span class="tr-priority {{ row.priority.0 }}">{{ row.priority.1 }}</span><span class="tr-time"><small>Requested</small>{{ row.review.requested_at|ago }}</span>
+  {% else %}<span class="tr-priority signed">{{ row.review.get_concordance_display|default:'Signed' }}</span><span class="tr-time"><small>Signed</small>{{ row.review.signed_at|date:'d M, H:i' }}</span>{% endif %}
+  <span class="tr-open" aria-hidden="true">→</span></a>
+{% empty %}<div class="empty tr-empty"><strong>{% if tab == 'pending' %}The queue is clear{% else %}No signed reviews yet{% endif %}</strong><p>{% if tab == 'pending' %}Studies appear here when AI confidence falls below the review threshold or a clinician requests a second read.{% else %}Signed second-read reports will be listed here.{% endif %}</p></div>{% endfor %}
+</section>
+<div class="prototype-note"><strong>Investigational AI · Not for clinical diagnosis.</strong> Signed reviews are returned to the referring facility’s case record.</div>
+{% endblock %}
