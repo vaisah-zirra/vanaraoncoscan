@@ -1,0 +1,60 @@
+{% extends 'base.html' %}{% load static %}{% load journey %}{% block title %}Case report{% if feedback_round %}<dialog class="v-feedback-dialog rs-feedback" data-report-feedback aria-labelledby="rs-feedback-title"><span class="rs-feedback-seal" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.2 4.2L19 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span><p class="v-eyebrow">WALKTHROUGH COMPLETE</p><h2 id="rs-feedback-title">How did it feel?</h2><p>You've taken a case from ultrasound to AI report, care plan and final report. Your feedback helps us understand what works and what your team would need next.</p><div class="v-star-decoration" aria-hidden="true">☆ ☆ ☆ ☆ ☆</div><a class="v-button" href="{% url 'round-feedback' feedback_round.pk %}">Rate your experience →</a><form method="post" action="{% url 'dismiss-feedback' feedback_round.pk %}">{% csrf_token %}<button class="v-text-button">Maybe later</button></form></dialog>{% endif %}
+{% endblock %}{% block breadcrumb %}Case report{% if feedback_round %}<dialog class="v-feedback-dialog rs-feedback" data-report-feedback aria-labelledby="rs-feedback-title"><span class="rs-feedback-seal" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.2 4.2L19 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span><p class="v-eyebrow">WALKTHROUGH COMPLETE</p><h2 id="rs-feedback-title">How did it feel?</h2><p>You've taken a case from ultrasound to AI report, care plan and final report. Your feedback helps us understand what works and what your team would need next.</p><div class="v-star-decoration" aria-hidden="true">☆ ☆ ☆ ☆ ☆</div><a class="v-button" href="{% url 'round-feedback' feedback_round.pk %}">Rate your experience →</a><form method="post" action="{% url 'dismiss-feedback' feedback_round.pk %}">{% csrf_token %}<button class="v-text-button">Maybe later</button></form></dialog>{% endif %}
+{% endblock %}{% block content %}{% case_journey case "report" %}
+<link rel="stylesheet" href="{% static 'report-stage.css' %}"><script defer src="{% static 'report-stage.js' %}"></script>
+<section class="rs-hero rs-{{ plan.2 }}" aria-labelledby="rs-title"{% if feedback_round %} data-feedback-status="{% url 'round-status' case.pk %}"{% endif %}>
+  <div class="rs-hero-main">
+    <span class="rs-seal" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.2 4.2L19 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+    <div>
+      <p class="eyebrow">FINAL STAGE · CASE REPORT</p>
+      <h1 id="rs-title">{% if pending %}Care plan recorded. Report ready.{% else %}Care plan confirmed. Your report is ready.{% endif %}</h1>
+      <p class="rs-sub">{{ case.patient.display_name }} · {{ case.patient.reference }} · {{ case.patient.facility.name }}</p>
+    </div>
+  </div>
+  <div class="rs-download">
+    <a class="button primary rs-download-btn" href="{% url 'case-report' case.pk %}" data-report-download>
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11m0 0l-4.5-4.5M12 15l4.5-4.5M5 19.5h14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <span>Download case report <small>PDF</small></span>
+    </a>
+    <p class="rs-download-state" role="status" aria-live="polite" data-report-state>{% if downloaded %}✓ Downloaded. You can download the latest copy again at any time.{% else %}Includes the history, image review, AI assessment{% if signed %}, signed specialist read{% endif %} and care plan.{% endif %}</p>
+  </div>
+</section>
+
+<div class="rs-grid">
+  <section class="panel detail rs-summary">
+    <p class="eyebrow">REPORT SUMMARY</p><h2>What the report records</h2>
+    <dl class="rs-facts">
+      <div><dt>Care plan</dt><dd><span class="rs-plan-chip rs-{{ plan.0|slugify }}">{{ plan.0 }}</span><small>{{ plan.1 }}</small></dd></div>
+      {% if birads %}<div><dt>BI-RADS</dt><dd><strong>{{ birads.category }}</strong> · {{ birads.name }}<small>{{ birads.source }}</small></dd></div>{% endif %}
+      {% if signed %}<div><dt>Specialist read</dt><dd>Signed by {{ signed.reviewer.get_full_name|default:signed.reviewer.username }}<small>{{ signed.signed_at|date:'d M Y, H:i' }}{% if signed.concordance %} · {{ signed.get_concordance_display }}{% endif %}</small></dd></div>
+      {% elif pending %}<div><dt>Specialist read</dt><dd>Awaiting teleradiologist<small>The PDF will include the signed read once it arrives.</small></dd></div>{% endif %}
+      {% if referral %}<div><dt>Referral</dt><dd>{{ referral.destination }}<small>{{ referral.get_urgency_display|default:'Urgency not recorded' }}</small></dd></div>{% endif %}
+      {% if followup %}<div><dt>Follow-up</dt><dd>{{ followup.due_date|date:'d F Y' }}<small>{% if followup.completed_at %}Completed{% else %}Scheduled{% endif %}</small></dd></div>{% endif %}
+      <div><dt>Confirmed by</dt><dd>{{ decision.actor.get_full_name|default:decision.actor.username }}<small>{{ decision.created_at|date:'d M Y, H:i' }}</small></dd></div>
+    </dl>
+    {% if decision.notes %}<p class="rs-notes">{{ decision.notes|linebreaksbr }}</p>{% endif %}
+  </section>
+
+  <aside class="rs-side">
+    <section class="panel detail rs-contents">
+      <p class="eyebrow">INSIDE THE PDF</p>
+      <ul class="rs-checklist">
+        <li>Patient details & presenting history</li>
+        <li>Annotated ultrasound & image-quality check</li>
+        <li>Structured BI-RADS assessment</li>
+        <li>{% if signed %}Signed teleradiology review{% else %}Teleradiology status{% endif %}</li>
+        <li>Confirmed care plan & case timeline</li>
+      </ul>
+    </section>
+    <section class="panel detail rs-next">
+      <p class="eyebrow">WHAT'S NEXT</p>
+      <a class="rs-next-link rs-next-primary" href="{% url 'new-assessment' %}"><strong>Start another case</strong><span>Assess a new patient</span></a>
+      {% if referral %}<a class="rs-next-link" href="{% url 'referral-detail' referral.pk %}"><strong>Track referral</strong><span>{{ referral.get_status_display }}</span></a>{% endif %}
+      {% if followup %}<a class="rs-next-link" href="{% url 'followup-detail' followup.pk %}"><strong>Manage follow-up</strong><span>Due {{ followup.due_date|date:'d M Y' }}</span></a>{% endif %}
+      <a class="rs-next-link" href="{% url 'case-detail' case.pk %}"><strong>Open case record</strong><span>Full report, specialist input & timeline</span></a>
+      <a class="rs-next-link" href="{% url 'dashboard' %}"><strong>Back to workspace</strong><span>Your cases and walkthrough</span></a>
+    </section>
+  </aside>
+</div>
+{% if feedback_round %}<dialog class="v-feedback-dialog rs-feedback" data-report-feedback aria-labelledby="rs-feedback-title"><span class="rs-feedback-seal" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.2 4.2L19 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span><p class="v-eyebrow">WALKTHROUGH COMPLETE</p><h2 id="rs-feedback-title">How did it feel?</h2><p>You've taken a case from ultrasound to AI report, care plan and final report. Your feedback helps us understand what works and what your team would need next.</p><div class="v-star-decoration" aria-hidden="true">☆ ☆ ☆ ☆ ☆</div><a class="v-button" href="{% url 'round-feedback' feedback_round.pk %}">Rate your experience →</a><form method="post" action="{% url 'dismiss-feedback' feedback_round.pk %}">{% csrf_token %}<button class="v-text-button">Maybe later</button></form></dialog>{% endif %}
+{% endblock %}

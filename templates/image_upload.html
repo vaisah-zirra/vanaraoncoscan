@@ -1,8 +1,8 @@
-{% extends 'base.html' %}{% load static %}{% block title %}Upload ultrasound images{% endblock %}{% block breadcrumb %}Image upload{% endblock %}{% block content %}
+{% extends 'base.html' %}{% load static %}{% block title %}Upload ultrasound images{% endblock %}{% block breadcrumb %}Image upload{% endblock %}{% block content %}{% load journey %}{% case_journey case "image" %}
 <link rel="stylesheet" href="{% static 'image-upload.css' %}"><script defer src="{% static 'image-upload.js' %}"></script>
 <a class="back-link" href="{% url 'case-detail' case.pk %}">← Back to case</a>
-<div class="page-heading"><div><p class="eyebrow">ASSESSMENT WORKSPACE</p><h1>A clearer view starts here.</h1><p class="subtitle">Attach an ultrasound image to continue {{ case.patient.display_name }}’s assessment.</p></div><span class="upload-step-count">STEP <strong>02</strong> / 04</span></div>
-<ol class="upload-progress" aria-label="Assessment progress"><li class="done"><span>✓</span>Patient & history</li><li class="active" aria-current="step"><span>2</span>Ultrasound image</li><li><span>3</span>Image quality</li><li><span>4</span>Assessment</li></ol>
+<div class="page-heading"><div><p class="eyebrow">ASSESSMENT WORKSPACE</p><h1>A clearer view starts here.</h1><p class="subtitle">Attach an ultrasound image to continue {{ case.patient.display_name }}’s assessment.</p></div></div>
+
 {% if error %}<div class="upload-error" role="alert">{{ error }}</div>{% endif %}
 <div class="upload-layout"><section class="panel upload-panel"><div class="panel-heading"><div><h2>Upload ultrasound images</h2><p>Select an image, review the attachment and save it to this case.</p></div><span class="count-pill">{% if attachment %}1 image attached{% else %}No image attached{% endif %}</span></div>
 {% if attachment %}<div class="attached-preview"><button type="button" class="image-preview-button" data-preview-url="{% url 'sample-image' attachment.sample.pk %}" data-preview-name="{{ attachment.sample.display_filename }}" aria-label="Preview attached ultrasound image"><img src="{% url 'sample-image' attachment.sample.pk %}" alt="Attached breast ultrasound: {{ attachment.sample.study_id }}"><span>⤢ &nbsp; Expand image</span></button><div class="image-viewer-label"><span>BREAST ULTRASOUND</span><span>{{ attachment.sample.width }} × {{ attachment.sample.height }} px</span></div></div>

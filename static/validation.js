@@ -31,3 +31,28 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 });
+
+// Star rating: fill every star up to the selected one, preview on hover/focus.
+document.addEventListener('DOMContentLoaded', () => {
+  const group = document.querySelector('[data-star-rating]');
+  if (!group) return;
+  const labels = [...group.querySelectorAll('label')];
+  const caption = document.querySelector('[data-star-caption]');
+  const words = ['Not useful', 'Slightly useful', 'Moderately useful', 'Useful', 'Very useful'];
+  const selected = () => labels.findIndex(label => label.querySelector('input').checked);
+  const paint = () => {
+    const n = selected();
+    labels.forEach((label, i) => label.classList.toggle('is-filled', n >= 0 && i <= n));
+    if (caption) caption.textContent = n >= 0 ? `${n + 1} of 5 · ${words[n]}` : '';
+  };
+  const preview = (n) => {
+    group.classList.toggle('is-previewing', n >= 0);
+    labels.forEach((label, i) => label.classList.toggle('is-preview', n >= 0 && i <= n));
+  };
+  labels.forEach((label, i) => {
+    label.addEventListener('mouseenter', () => preview(i));
+    label.querySelector('input').addEventListener('change', paint);
+  });
+  group.addEventListener('mouseleave', () => preview(-1));
+  paint();
+});

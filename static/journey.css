@@ -1,0 +1,35 @@
+/* Case journey stepper */
+.journey{background:#fff;border:1px solid var(--line);border-radius:16px;padding:16px 22px 18px;margin:0 0 26px;box-shadow:0 6px 24px #183d3d0a;animation:page-rise .45s ease both}
+.journey-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:14px}
+.journey-title{font-size:10.5px;font-weight:700;letter-spacing:1.6px;text-transform:uppercase;color:#147c70}
+.journey-meta{display:flex;align-items:center;gap:10px;font-size:11.5px;color:#6b7f7f}
+.journey-walk{font-size:10.5px;font-weight:700;color:#8a5a0b;background:#fdf3e2;border-radius:20px;padding:3px 9px}
+.journey-track{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(6,1fr);position:relative}
+.journey-track:before,.journey-track:after{content:'';position:absolute;top:15px;left:calc(100%/12);height:3px;border-radius:3px}
+.journey-track:before{right:calc(100%/12);background:#e6eeec}
+.journey-track:after{width:calc((100% - 100%/6) * var(--fill) / 100);background:linear-gradient(90deg,#147c70,#3fb48f);transition:width .8s cubic-bezier(.2,.8,.2,1);animation:journey-grow 1s cubic-bezier(.2,.8,.2,1) both}
+@keyframes journey-grow{from{width:0}}
+.journey-track li{position:relative;z-index:1;text-align:center;min-width:0}
+.journey-track a,.journey-node{display:flex;flex-direction:column;align-items:center;gap:6px;text-decoration:none;color:inherit;padding:0 4px}
+.journey-track a:hover .journey-label{color:#147c70;text-decoration:underline}
+.journey-track a:focus-visible{outline:3px solid #dc9b35;outline-offset:4px;border-radius:10px}
+.journey-dot{width:33px;height:33px;border-radius:50%;display:grid;place-items:center;font-size:12.5px;font-weight:700;background:#fff;border:2px solid #dbe5e2;color:#93a5a2;transition:all .25s}
+.journey-dot svg{width:15px;height:15px}
+.journey-label{font-size:12.5px;font-weight:600;color:#7c8f8c;line-height:1.25}
+.journey-note{font-size:10.5px;color:#93a5a2;min-height:13px}
+.js-done .journey-dot{background:#147c70;border-color:#147c70;color:#fff}
+.js-done .journey-label{color:#183d3d}
+.js-current .journey-dot{background:#fff;border-color:#147c70;color:#147c70;box-shadow:0 0 0 5px #147c701f}
+.js-current .journey-label{color:#183d3d;font-weight:700}
+.js-current .journey-note{color:#147c70;font-weight:700}
+.js-blocked .journey-dot{background:#fdf0ea;border-color:#b54d25;color:#b54d25}
+.js-blocked .journey-note{color:#b54d25;font-weight:600}
+@media (max-width:760px){
+  .journey{padding:14px 12px 14px}
+  .journey-label{font-size:10.5px}
+  .journey-note{display:none}
+  .journey-track li:not(.js-current) .journey-label{opacity:.75}
+  .journey-dot{width:28px;height:28px;font-size:11px}
+  .journey-track:before,.journey-track:after{top:13px}
+}
+@media (prefers-reduced-motion:reduce){.journey,.journey-track:after{animation:none}}

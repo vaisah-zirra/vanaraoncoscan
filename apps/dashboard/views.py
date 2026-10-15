@@ -45,6 +45,7 @@ def dashboard(request):
     params = request.GET.copy()
     params.pop('page', None)
     return render(request, 'dashboard.html', {'counts': counts, 'case_count': counts['total'], 'cases': page,
+        'first_run': counts['total'] == 0 and not (q or status or period),
         'page': page, 'querystring': params.urlencode(), 'q': q, 'status': status, 'period': period, 'sort': sort,
         'statuses': Case.Status.choices, 'facilities': Facility.objects.filter(pk__in=facility_ids_for(request.user)),
         'followups': FollowUp.objects.filter(case__in=all_cases, completed_at__isnull=True).select_related('case__patient').order_by('due_date')[:3],
@@ -78,4 +79,4 @@ def new_assessment(request):
             concern = concern or patient_contexts.get(str(patient.pk), '')
             case = start_case(user=request.user, patient_id=patient.pk, presenting_concern=concern)
             return redirect('image-upload', pk=case.pk)
-    return render(request, 'new_assessment.html', {'patients': patients, 'error': error, 'concern': request.POST.get('concern', ''), 'patient_contexts': patient_contexts, 'selected_patient': request.POST.get('patient', '')})
+    return render(request, 'new_assessment.html', {'patients': patients, 'error': error, 'concern': request.POST.get('concern', ''), 'patient_contexts': patient_contexts, 'facilities': Facility.objects.filter(pk__in=facility_ids_for(request.user)), 'selected_patient': request.POST.get('patient', '')})

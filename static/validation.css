@@ -6,3 +6,12 @@
 .v-rating-options input{opacity:0}.v-panel .errorlist{overflow-wrap:anywhere}
 
 .v-factor-group{border:0;padding:0;margin:26px 0;min-width:0}.v-factor-group legend{font-size:15px;font-weight:700;line-height:1.6;color:#335d53}.v-factor-options{display:grid;grid-template-columns:1fr 1fr;gap:10px}.v-factor-options label{display:flex;align-items:flex-start;gap:10px;border:1px solid #dce5df;background:#fbfcfa;border-radius:12px;padding:14px;margin:0;font-size:13px;font-weight:400;cursor:pointer;line-height:1.5}.v-factor-options input[type=checkbox]{width:17px;height:17px;flex:0 0 17px;margin:2px 0 0;accent-color:#197b65}.v-factor-options label:has(input:checked){background:#edf5e5;border-color:#3a8b6e}.v-factor-options label:focus-within{outline:2px solid #c59d49;outline-offset:2px}@media(max-width:700px){.v-factor-options{grid-template-columns:1fr}}
+
+/* Star rating: selecting N lights stars 1..N; hovering previews the same */
+.v-rating-options span{transition:background .15s,color .15s,border-color .15s,transform .15s}
+.v-rating-options label.is-filled span{background:#e7f1d7;color:#af8826;border-color:#cfe0b8}
+.v-rating-options input:checked+span{border-color:#488569}
+.v-rating-options.is-previewing label span,.v-rating-options.is-previewing label.is-filled span{background:#f2f5ee;color:#bdc6b8;border-color:transparent}
+.v-rating-options.is-previewing label.is-preview span,.v-rating-options.is-previewing label.is-preview.is-filled span{background:#f6efd9;color:#c49a2c;border-color:#e3cf93;transform:translateY(-2px)}
+.v-rating-caption{min-height:20px;margin:10px 0 0;font-size:13px;font-weight:700;color:#8a6d1f}
+@media (prefers-reduced-motion:reduce){.v-rating-options span{transition:none}.v-rating-options.is-previewing label.is-preview span,.v-rating-options.is-previewing label.is-preview.is-filled span{transform:none}}

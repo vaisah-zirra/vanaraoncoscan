@@ -71,7 +71,7 @@ def round_progress(item):
         steps += [('Open the assessment and annotations', assessment is not None and item.assessment_viewed_at is not None, 'assessment-result'),
                   ('Record a care decision', case.clinical_decisions.exists(), 'clinician-review')]
     before_report = all(step[1] for step in steps)
-    steps.append(('Download the quality report' if failed else 'Download the case report', before_report and item.report_requested_at is not None, 'case-report'))
+    steps.append(('Download the quality report' if failed else 'Download the case report', before_report and item.report_requested_at is not None, 'case-report' if failed else 'case-report-stage'))
     done = sum(bool(step[1]) for step in steps)
     next_step = next((step for step in steps if not step[1]), None)
     return {'round':item, 'steps':[{'label':label, 'done':bool(complete)} for label,complete,_ in steps],

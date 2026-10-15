@@ -9,7 +9,7 @@ from apps.dashboard.views import dashboard, case_detail, new_assessment
 
 from apps.workflow.views import clinician_review
 
-from apps.workflow.report_views import case_report
+from apps.workflow.report_views import case_report, report_stage
 
 from apps.workflow.followup_views import followup_list, followup_detail
 
@@ -31,6 +31,7 @@ urlpatterns = [
     path('follow-ups/', followup_list, name='followup-list'),
     path('follow-ups/<int:pk>/', followup_detail, name='followup-detail'),
     path('cases/<uuid:pk>/report.pdf', case_report, name='case-report'),
+    path('cases/<uuid:pk>/report/', report_stage, name='case-report-stage'),
     path('cases/<uuid:pk>/review/', clinician_review, name='clinician-review'),
     path('cases/<uuid:pk>/quality/', quality_check, name='quality-check'),
     path('cases/<uuid:pk>/assessment/', assessment_result, name='assessment-result'),

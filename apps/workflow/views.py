@@ -53,8 +53,8 @@ def clinician_review(request, pk):
         except ValidationError as exc:
             form.add_error(None, exc.messages[0])
         else:
-            messages.success(request, 'Clinical decision saved. The care plan and case timeline have been updated.')
-            return redirect('clinician-review', pk=pk)
+            messages.success(request, 'Care plan saved. Your case report is ready to download.')
+            return redirect('case-report-stage', pk=pk)
     return render(request, 'clinician_review.html', {'case':case, 'assessment':assessment, 'quality':quality,
         'result':assessment.details if assessment else {}, 'suggestion':suggestion, 'form':form, 'eligible':eligible, 'decisions':decisions,
         'reviews':case.specialistreview_set.select_related('reviewer'), 'followups':case.followup_set.all()})
