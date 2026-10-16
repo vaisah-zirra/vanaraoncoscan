@@ -15,3 +15,22 @@
 .v-rating-options.is-previewing label.is-preview span,.v-rating-options.is-previewing label.is-preview.is-filled span{background:#f6efd9;color:#c49a2c;border-color:#e3cf93;transform:translateY(-2px)}
 .v-rating-caption{min-height:20px;margin:10px 0 0;font-size:13px;font-weight:700;color:#8a6d1f}
 @media (prefers-reduced-motion:reduce){.v-rating-options span{transition:none}.v-rating-options.is-previewing label.is-preview span,.v-rating-options.is-previewing label.is-preview.is-filled span{transform:none}}
+
+/* Validation evidence export */
+.v-export{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.25fr);gap:28px;align-items:start;border-left:4px solid #175b49}
+.v-export h2{margin:4px 0 8px}
+.v-export-form{display:grid;gap:14px}
+.v-export-identity{border:0;margin:0;padding:0;display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.v-export-identity legend{font-size:12px;font-weight:700;color:#335d53;margin-bottom:6px}
+.v-export-identity label{display:flex;gap:10px;align-items:flex-start;border:1px solid #dfe8e1;border-radius:12px;padding:11px 12px;cursor:pointer;background:#fbfcfa}
+.v-export-identity label:has(input:checked){border-color:#248066;background:#eef6ee}
+.v-export-identity input[type=radio]{accent-color:#177e69;margin:3px 0 0;width:16px!important;height:16px!important;min-height:0!important;padding:0!important;flex:none;box-shadow:none}
+.v-export-identity b{display:block;font-size:13px}
+.v-export-identity small{display:block;font-size:11.5px;color:#677f79;line-height:1.45;margin-top:2px}
+.v-export-buttons{display:flex;flex-wrap:wrap;gap:10px}
+.v-export-buttons .v-button{min-height:42px;padding:11px 16px;font-size:13px}
+.v-button-light{background:#fff!important;color:#175b49!important;border:1px solid #cfe0d6!important}
+.v-button-light:hover{background:#eef6ee!important;box-shadow:none}
+.v-export-link{font-weight:700;color:#175b49;text-decoration:none;white-space:nowrap}
+.v-export-link:hover{text-decoration:underline}
+@media(max-width:860px){.v-export{grid-template-columns:1fr}.v-export-identity{grid-template-columns:1fr}}

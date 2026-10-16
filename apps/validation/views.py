@@ -114,27 +114,12 @@ def require_owner(request):
 @require_GET
 def analytics(request):
     require_owner(request)
-    days=request.GET.get('days','30')
-    if days not in ('7','30','90','all'): days='30'
-    since=timezone.now()-timedelta(days=int(days)) if days!='all' else None
-    participants=Participant.objects.select_related('user')
-    visits=Visit.objects.all()
-    leads=Lead.objects.select_related('participant','feedback')
-    if since:
-        participants=participants.filter(created_at__gte=since)
-        visits=visits.filter(started_at__gte=since)
-        leads=leads.filter(created_at__gte=since)
-    source=request.GET.get('source','')[:80]
-    role=request.GET.get('role','')
-    if source:
-        participants=participants.filter(source=source);visits=visits.filter(source=source);leads=leads.filter(source=source)
-    if role in dict(ROLES):
-        participants=participants.filter(role=role);leads=leads.filter(role=role)
-    else: role=''
-    # Completion is a registration cohort: returning later still counts for the same participant.
-    rounds=WalkthroughRound.objects.filter(participant__in=participants).select_related('case__patient','case__attachment','case__qualityassessment','case__aiassessment','participant__user').prefetch_related('case__clinical_decisions')
+    from .cohort import cohort
+    c=cohort(request.GET)
+    days,source,role=c['days'],c['source'],c['role']
+    participants,visits,leads,rounds=c['participants'],c['visits'],c['leads'],c['rounds']
     completed=rounds.filter(completed_at__isnull=False)
-    responses=Feedback.objects.filter(round__in=rounds)
+    responses=c['responses']
     stats={'visits':visits.count(),'landing':visits.filter(landing_seen=True).count(),'registrations':participants.count(),
         'started':rounds.values('participant_id').distinct().count(),'rounds':rounds.count(),'completed':completed.count(),
         'finishers':completed.values('participant_id').distinct().count(),'feedback':responses.count(),'rating':responses.aggregate(value=Avg('rating'))['value'],
@@ -165,7 +150,9 @@ def analytics(request):
     page=Paginator(filtered,15).get_page(request.GET.get('page'))
     params=request.GET.copy();params.pop('page',None)
     participant_params=request.GET.copy();participant_params.pop('participant_page',None)
-    return render(request,'validation/analytics.html',{'stats':stats,'leads':page,'page':page,'querystring':params.urlencode(),
+    from urllib.parse import urlencode
+    export_qs=urlencode({'days':days,'source':source,'role':role})
+    return render(request,'validation/analytics.html',{'export_qs':export_qs,'stats':stats,'leads':page,'page':page,'querystring':params.urlencode(),
         'days':days,'source':source,'role':role,'roles':ROLES,'q':q,'stage':stage,'stages':Lead.STAGES,
         'participant_q':participant_q,'participant_rows':participant_rows,'participant_page':participant_page,'participant_querystring':participant_params.urlencode(),
         'sources':Visit.objects.values_list('source',flat=True).distinct().order_by('source'),
@@ -194,3 +181,24 @@ def lead_detail(request,pk):
                 messages.success(request,'Enquiry updated.')
                 return redirect('validation-lead',pk=pk)
     return render(request,'validation/lead.html',{'lead':lead,'form':form,'updates':lead.updates.select_related('actor').order_by('-created_at')})
+
+
+@login_required
+@never_cache
+@require_GET
+def evidence_export(request, kind):
+    """Download the validation evidence as a branded PDF (full report or one section)."""
+    require_owner(request)
+    from django.http import HttpResponse, Http404
+    from .cohort import cohort
+    from .evidence import build
+    from .evidence_pdf import render, KINDS
+    if kind not in KINDS:
+        raise Http404
+    identity = 'named' if request.GET.get('identity') == 'named' else 'anonymised'
+    data = build(cohort(request.GET), identity)
+    response = HttpResponse(render(data, kind), content_type='application/pdf')
+    suffix = '' if identity == 'anonymised' else '_INTERNAL'
+    response['Content-Disposition'] = f'attachment; filename="VanaraOncoScan_{kind}_evidence_{data["generated"]:%Y%m%d}{suffix}.pdf"'
+    response['Cache-Control'] = 'private, no-store, max-age=0'
+    return response

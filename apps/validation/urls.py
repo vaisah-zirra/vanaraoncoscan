@@ -11,5 +11,6 @@ urlpatterns = [
     path('walkthrough/<int:pk>/feedback/', views.feedback, name='round-feedback'),
     path('walkthrough/<int:pk>/dismiss/', views.dismiss_feedback, name='dismiss-feedback'),
     path('validation/', views.analytics, name='validation-dashboard'),
+    path('validation/export/<slug:kind>.pdf', views.evidence_export, name='validation-export'),
     path('validation/leads/<int:pk>/', views.lead_detail, name='validation-lead'),
 ]
