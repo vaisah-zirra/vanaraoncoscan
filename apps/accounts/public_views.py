@@ -36,5 +36,6 @@ def landing(request):
             request.session['enquiry_received']=True
             return redirect(reverse('landing')+'#contact')
     received=request.session.pop('enquiry_received',False) if request.method=='GET' else False
-    response=render(request,'landing.html',{'contact_form':form,'received':received})
+    from apps.validation.guest_access import landing_context
+    response=render(request,'landing.html',{'contact_form':form,'received':received,**landing_context(request)})
     return response

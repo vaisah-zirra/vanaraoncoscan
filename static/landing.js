@@ -80,3 +80,16 @@ if ('IntersectionObserver' in window && !window.matchMedia('(prefers-reduced-mot
     });
   }, { threshold: 0.35 }).observe(art);
 })();
+
+// Organisation access: "Enter as …" links sign the reviewer in with one click.
+(() => {
+  const form = document.querySelector('[data-guest-form]');
+  if (!form) return;
+  document.addEventListener('click', (event) => {
+    const link = event.target.closest('a[data-guest-link]');
+    if (!link) return;
+    event.preventDefault();
+    link.setAttribute('aria-busy', 'true');
+    form.submit();
+  });
+})();

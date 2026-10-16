@@ -1,6 +1,8 @@
 from django.urls import path
-from . import views
+from . import views, guest_access
 urlpatterns = [
+    path('access/<slug:org>/enter/', guest_access.enter, name='guest-enter'),
+    path('access/<str:code>/', guest_access.access_link, name='guest-access'),
     path('accounts/signup/', views.signup, name='signup'),
     path('pilot/', views.pilot_interest, name='pilot-interest'),
     path('information/', views.privacy, name='validation-privacy'),

@@ -73,3 +73,13 @@ body{overflow-x:clip}
 @keyframes ja-pop{40%{transform:scale(1.18)}100%{transform:scale(1)}}
 @keyframes ja-halo{0%{opacity:.55;transform:scale(1)}100%{opacity:0;transform:scale(2.1)}}
 @media (prefers-reduced-motion:reduce){.mission-art *{animation:none!important;transition:none!important}.mission-art .ja-walker{display:none}}
+
+/* Organisation access ribbon (shown only to visitors who arrived through a private access link) */
+.guest-ribbon{background:#123a37;color:#eaf5ef;position:relative;z-index:30}
+.guest-ribbon-inner{display:flex;align-items:center;gap:16px;padding-top:12px;padding-bottom:12px;flex-wrap:wrap}
+.guest-ribbon-badge{font-size:12px;font-weight:800;letter-spacing:.4px;background:#d7f19f;color:#123a37;border-radius:20px;padding:5px 12px}
+.guest-ribbon p{margin:0;flex:1 1 320px;font-size:14px;line-height:1.5;color:#cfe5df}
+.guest-ribbon p strong{color:#fff}
+.guest-ribbon-cta{display:inline-flex;align-items:center;gap:8px;background:#fff;color:#123a37!important;font-weight:700;font-size:14px;text-decoration:none;border-radius:999px;padding:9px 18px;white-space:nowrap;transition:transform .15s ease}
+.guest-ribbon-cta:hover{transform:translateY(-1px)}
+@media (max-width:640px){.guest-ribbon-inner{gap:10px}.guest-ribbon-cta{width:100%;justify-content:center}}

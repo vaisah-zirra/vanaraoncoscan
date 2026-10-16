@@ -49,10 +49,13 @@ def register(request, data):
     source, campaign = attribution(request)
     participant = Participant.objects.create(user=user, facility=facility, role=data['role'], organisation=data['organisation'], source=source,
         campaign=campaign, whatsapp=data['whatsapp'], whatsapp_consent=data['whatsapp_consent'], research_consent_at=timezone.now())
-    for code, name in [('A','Amina Yusuf'),('B','Ngozi Eze'),('C','Grace Adeyemi'),('D','Fatima Ibrahim')]:
-        Patient.objects.create(facility=facility, reference='DEMO-'+code, display_name=name, is_synthetic=True)
+    seed_sample_patients(facility)
     Visit.objects.filter(pk=request.session.get('validation_visit')).update(participant=participant)
     return user
+
+def seed_sample_patients(facility):
+    for code, name in [('A','Amina Yusuf'),('B','Ngozi Eze'),('C','Grace Adeyemi'),('D','Fatima Ibrahim')]:
+        Patient.objects.create(facility=facility, reference='DEMO-'+code, display_name=name, is_synthetic=True)
 
 def start_round(user, case):
     participant = participant_for(user)

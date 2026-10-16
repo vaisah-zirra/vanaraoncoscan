@@ -41,3 +41,11 @@ SESSION_COOKIE_SECURE = not DEBUG
 CSRF_COOKIE_SECURE = not DEBUG
 SECURE_CONTENT_TYPE_NOSNIFF = True
 X_FRAME_OPTIONS = 'DENY'
+
+# Private organisation access links (e.g. /access/<code>/ for iDICE reviewers).
+# Each link opens the landing page with a one-click "Enter as <label>" that
+# creates a fresh guest workspace per reviewer. Unset the code to switch it off.
+GUEST_ACCESS = {}
+if os.environ.get('IDICE_ACCESS_CODE'):
+    GUEST_ACCESS['idice'] = {'label': 'iDICE', 'code': os.environ['IDICE_ACCESS_CODE'], 'expires': os.environ.get('IDICE_ACCESS_EXPIRES', '')}
+GUEST_ACCESS_MAX_WORKSPACES = int(os.environ.get('GUEST_ACCESS_MAX_WORKSPACES', '300'))
