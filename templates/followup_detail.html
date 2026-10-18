@@ -1,5 +1,5 @@
 {% extends 'base.html' %}{% load static %}{% block title %}Follow-up · {{ item.case.patient.display_name }}{% endblock %}{% block breadcrumb %}Follow-up review{% endblock %}{% block content %}
-<link rel="stylesheet" href="{% static 'insights.css' %}?v=1"><link rel="stylesheet" href="{% static 'care.css' %}?v=1"><script defer src="{% static 'clinical-review.js' %}"></script>
+<link rel="stylesheet" href="{% static 'insights.css' %}?v=2"><link rel="stylesheet" href="{% static 'care.css' %}?v=1"><script defer src="{% static 'clinical-review.js' %}"></script>
 <div class="vd">
 <a class="cr-back" href="{% url 'followup-list' %}">← All follow-ups</a>
 <section class="vd-card cr-hero">

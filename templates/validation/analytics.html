@@ -1,5 +1,5 @@
 {% extends 'base.html' %}{% load static %}{% block title %}Validation analytics{% endblock %}{% block breadcrumb %}Validation analytics{% endblock %}{% block content %}
-<link rel="stylesheet" href="{% static 'insights.css' %}?v=1"><script defer src="{% static 'insights.js' %}?v=1"></script>
+<link rel="stylesheet" href="{% static 'insights.css' %}?v=2"><script defer src="{% static 'insights.js' %}?v=1"></script>
 <div class="vd">
 
 <header class="vd-head">
@@ -97,7 +97,7 @@
   </section>
   <section class="vd-card">
     <div class="vd-card-head"><div><h2>In their words</h2><p>Latest written feedback</p></div></div>
-    {% for q in quotes %}<blockquote class="vd-quote"><p>“{{ q.text|truncatechars:170 }}”</p><footer><span class="vd-avatar sm">{{ q.initials }}</span><span><b>{{ q.name }}</b>{% if q.org %} · {{ q.org }}{% endif %}</span><em>{{ q.rating }}★</em></footer></blockquote>
+    {% for q in quotes %}<blockquote class="vd-quote"><p>“{{ q.text|linebreaksbr }}”</p><footer><span class="vd-avatar sm">{{ q.initials }}</span><span><b>{{ q.name }}</b>{% if q.org %} · {{ q.org }}{% endif %}</span><em>{{ q.rating }}★</em></footer></blockquote>
     {% empty %}<p class="vd-empty-note">Written feedback will appear here.</p>{% endfor %}
   </section>
 </div>
@@ -117,9 +117,9 @@
           <td>{{ r.organisation|default:'—' }}<small>{{ r.role }}</small></td>
           <td class="vd-contact">{% if r.whatsapp %}<a href="https://wa.me/{{ r.whatsapp|cut:'+'|cut:' '|cut:'-'|cut:'('|cut:')' }}" target="_blank" rel="noopener">WhatsApp {{ r.whatsapp }}</a>{% endif %}<a href="mailto:{{ r.email }}">Email</a></td>
           <td><span class="vd-chip">{{ r.interest }}</span>{% if r.tried %}<small class="vd-tried">Used the workspace</small>{% endif %}</td>
-          <td><span class="vd-stage s-{{ r.stage_key }}">{{ r.stage }}</span>{% if r.next_action %}<small>{{ r.next_action|truncatechars:40 }}</small>{% endif %}</td>
+          <td><span class="vd-stage s-{{ r.stage_key }}">{{ r.stage }}</span>{% if r.next_action %}<small>{{ r.next_action }}</small>{% endif %}</td>
           <td>{{ r.date|date:'d M Y' }}<small>{{ r.source }}</small></td>
-          <td class="vd-msg">{{ r.message|default:'—'|truncatechars:110 }}</td>
+          <td class="vd-msg">{{ r.message|default:'—'|linebreaksbr }}</td>
         </tr>{% endfor %}</tbody>
       {% elif t.kind == 'registered' %}<thead><tr><th>Name</th><th>Organisation</th><th>Contact</th><th>Joined</th><th>Progress</th><th>Rating</th><th>Last seen</th></tr></thead><tbody>
         {% for r in t.rows %}<tr data-search="{{ r.name|lower }} {{ r.email|lower }} {{ r.organisation|lower }}">
@@ -139,7 +139,7 @@
           <td>{% if r.minutes is not None %}{{ r.minutes }} min{% else %}—{% endif %}</td>
           <td>{% if r.rating %}<span class="vd-rate">{{ r.rating }}★</span>{% else %}<small>No survey yet</small>{% endif %}</td>
           <td>{{ r.useful|default:'—' }}{% if r.intent %}<small>Next: {{ r.intent }}</small>{% endif %}</td>
-          <td class="vd-msg">{{ r.comment|default:'—'|truncatechars:110 }}</td>
+          <td class="vd-msg">{{ r.comment|default:'—'|linebreaksbr }}</td>
         </tr>{% endfor %}</tbody>{% endif %}
     </table></div><p class="vd-noresults" hidden>No one matches your search in this list.</p>
     {% else %}<div class="vd-empty"><strong>{% if t.key == 'pilot' %}No pilot requests yet{% elif t.key == 'waitlist' %}No one on the waitlist yet{% elif t.key == 'registered' %}No registrations yet{% elif t.key == 'completed' %}No completed walkthroughs yet{% else %}No other enquiries yet{% endif %}</strong><p>{% if t.key == 'pilot' or t.key == 'waitlist' %}Requests from the pilot form, the website and the post-walkthrough survey appear here.{% elif t.key == 'registered' %}People who create a workspace appear here.{% elif t.key == 'completed' %}Participants who take a case from scan to report appear here.{% else %}Demo, pricing, partnership and general enquiries appear here.{% endif %}</p></div>{% endif %}

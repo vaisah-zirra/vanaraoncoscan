@@ -141,7 +141,7 @@ a.vd-person:hover b{color:var(--teal)}
 .vd-stage.s-new{background:#fdf1dc;color:#9a6a0d}
 .vd-stage.s-contacted,.vd-stage.s-demo{background:#e4eff7;color:#2f6f8a}
 .vd-stage.s-pilot,.vd-stage.s-next{background:#e2f3ee;color:#0f6b60}
-.vd-msg{color:#4d6662!important;max-width:280px;font-size:12.5px!important;line-height:1.5}
+.vd-msg{color:#33504c!important;min-width:320px;max-width:460px;font-size:13px!important;line-height:1.6;white-space:normal;overflow-wrap:anywhere}
 .vd-progress{display:flex;align-items:center;gap:8px;min-width:120px}
 .vd-progress .vd-track{flex:1;height:7px}
 .vd-progress b{font-size:12px}

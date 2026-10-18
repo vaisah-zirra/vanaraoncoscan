@@ -1,5 +1,5 @@
 {% extends 'base.html' %}{% load static %}{% load dashboard_labels %}{% block title %}Specialist reviews{% endblock %}{% block breadcrumb %}Specialist reviews{% endblock %}{% block content %}
-<link rel="stylesheet" href="{% static 'insights.css' %}?v=1"><link rel="stylesheet" href="{% static 'care.css' %}?v=1"><script defer src="{% static 'care.js' %}?v=1"></script>
+<link rel="stylesheet" href="{% static 'insights.css' %}?v=2"><link rel="stylesheet" href="{% static 'care.css' %}?v=1"><script defer src="{% static 'care.js' %}?v=1"></script>
 <div class="vd">
 <header class="vd-head">
   <div><p class="vd-hello">Teleradiology</p><h1>Specialist reviews</h1><p class="vd-sub">Second reads from remote radiologists on your cases. Signed reports appear here and on each case.</p></div>
@@ -27,7 +27,7 @@
       <td>{% if r.review.signed_at %}<span class="cr-pill ok">✓ Signed</span><small>{{ r.reviewer }}{% if r.review.signed_at %} · {{ r.review.signed_at|date:'d M, H:i' }}{% endif %}</small>{% else %}<span class="cr-pill wait" data-pending-review="{% url 'teleradiology-status' r.review.pk %}"><i></i>Awaiting radiologist</span><small>Updates automatically</small>{% endif %}</td>
       <td>{% if r.review.birads %}<span class="cr-birads t-{{ r.tone }}">BI-RADS {{ r.review.birads }}</span><small>{{ r.birads_name }}</small>{% else %}<small>—</small>{% endif %}</td>
       <td>{% if r.review.concordance %}<span class="cr-agree a-{{ r.review.concordance|lower }}">{{ r.review.get_concordance_display }}</span>{% else %}<small>—</small>{% endif %}</td>
-      <td class="vd-msg">{{ r.review.recommendation|default:'—'|truncatechars:120 }}</td>
+      <td class="vd-msg">{{ r.review.recommendation|default:'—'|linebreaksbr }}</td>
       <td><a class="cr-open" href="{% url 'case-detail' r.case.pk %}#specialist-response">Open →</a></td>
     </tr>{% endfor %}</tbody>
   </table></div>
