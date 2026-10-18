@@ -114,7 +114,7 @@ def enter(request, org):
     welcome = f"Welcome back. Your {cfg['label']} review workspace is just as you left it."
     if not user:
         if Participant.objects.filter(campaign='guest-link').count() >= settings.GUEST_ACCESS_MAX_WORKSPACES:
-            messages.error(request, 'Review access is temporarily full. Please contact info@vanaraoncoscan.tech.')
+            messages.error(request, 'Review access is temporarily full. Please contact admin@vanaraoncoscan.tech.')
             return redirect('landing')
         user = _create_guest(request, cfg)
         welcome = f"Welcome, {cfg['label']} reviewer. Your workspace is ready, with sample patients to try."
