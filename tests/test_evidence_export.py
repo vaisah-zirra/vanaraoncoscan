@@ -94,6 +94,6 @@ class EvidenceExportTests(TestCase):
 
     def test_analytics_page_offers_exports(self):
         page = self.client.get(reverse('validation-dashboard') + '?days=all')
-        self.assertContains(page, 'Export a validation report')
-        self.assertContains(page, reverse('validation-export', args=['interest']))
-        self.assertContains(page, 'Export PDF ↓', count=3)
+        self.assertContains(page, 'Download as PDF')
+        for kind in ('full', 'participants', 'feedback', 'interest'):
+            self.assertContains(page, reverse('validation-export', args=[kind]))

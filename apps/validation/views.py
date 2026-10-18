@@ -114,52 +114,23 @@ def require_owner(request):
 @require_GET
 def analytics(request):
     require_owner(request)
-    from .cohort import cohort
-    c=cohort(request.GET)
-    days,source,role=c['days'],c['source'],c['role']
-    participants,visits,leads,rounds=c['participants'],c['visits'],c['leads'],c['rounds']
-    completed=rounds.filter(completed_at__isnull=False)
-    responses=c['responses']
-    stats={'visits':visits.count(),'landing':visits.filter(landing_seen=True).count(),'registrations':participants.count(),
-        'started':rounds.values('participant_id').distinct().count(),'rounds':rounds.count(),'completed':completed.count(),
-        'finishers':completed.values('participant_id').distinct().count(),'feedback':responses.count(),'rating':responses.aggregate(value=Avg('rating'))['value'],
-        'leads':leads.count(),'demos':leads.filter(interest='Demo').count(),'pilots':leads.filter(interest__in=['Pilot','Waitlist']).count(),
-        'commercial':leads.filter(interest__in=['Pricing','Deployment']).count(),
-        'returners':visits.filter(participant__isnull=False).values('participant_id').annotate(n=Count('pk')).filter(n__gt=1).count()}
-    stats['completion_rate']=round(stats['completed']/stats['rounds']*100) if stats['rounds'] else 0
-    progress=[round_progress(item) for item in rounds]
-    latest={}
-    for item in progress:
-        latest.setdefault(item['round'].participant_id,item)
-    participant_q=request.GET.get('participant_q','').strip()[:120]
-    participant_list=participants.annotate(round_count=Count('rounds',distinct=True),completed_count=Count('rounds',filter=Q(rounds__completed_at__isnull=False),distinct=True))
-    if participant_q:
-        participant_list=participant_list.filter(Q(user__first_name__icontains=participant_q)|Q(user__last_name__icontains=participant_q)|Q(user__email__icontains=participant_q)|Q(organisation__icontains=participant_q))
-    participant_page=Paginator(participant_list.order_by('-created_at','-pk'),15).get_page(request.GET.get('participant_page'))
-    participant_rows=[{'participant':person,'latest':latest.get(person.pk)} for person in participant_page]
-    stops={}
-    for item in progress:
-        if not item['complete']:
-            stops[item['next_label']]=stops.get(item['next_label'],0)+1
-    q=request.GET.get('q','').strip()[:120]
-    stage=request.GET.get('stage','')
-    filtered=leads
-    if q: filtered=filtered.filter(Q(name__icontains=q)|Q(email__icontains=q)|Q(organisation__icontains=q))
-    if stage in dict(Lead.STAGES): filtered=filtered.filter(stage=stage)
-    else: stage=''
-    page=Paginator(filtered,15).get_page(request.GET.get('page'))
-    params=request.GET.copy();params.pop('page',None)
-    participant_params=request.GET.copy();participant_params.pop('participant_page',None)
     from urllib.parse import urlencode
-    export_qs=urlencode({'days':days,'source':source,'role':role})
-    return render(request,'validation/analytics.html',{'export_qs':export_qs,'stats':stats,'leads':page,'page':page,'querystring':params.urlencode(),
-        'days':days,'source':source,'role':role,'roles':ROLES,'q':q,'stage':stage,'stages':Lead.STAGES,
-        'participant_q':participant_q,'participant_rows':participant_rows,'participant_page':participant_page,'participant_querystring':participant_params.urlencode(),
-        'sources':Visit.objects.values_list('source',flat=True).distinct().order_by('source'),
-        'source_rows':visits.values('source').annotate(n=Count('pk')).order_by('-n'),
-        'dropoffs':stops.items(),'barriers':factor_counts(responses),
-        'recent_feedback':responses.select_related('round__participant__user').order_by('-created_at')[:10],
-        'recent_rounds':progress[:20]})
+    from .cohort import cohort, PERIODS
+    from .dashboard import build
+    c = cohort(request.GET)
+    data = build(c, request.user)
+    stats = {'registrations': data['counts']['registrations'], 'rounds': data['counts']['rounds'],
+             'completed': data['counts']['completed'], 'leads': data['counts']['leads']}
+    tab = request.GET.get('tab', 'pilot')
+    if tab not in {t['key'] for t in data['tabs']}:
+        tab = 'pilot'
+    base = {'source': c['source'], 'role': c['role']}
+    periods = [{'key': k, 'label': {'7': '7 days', '30': '30 days', '90': '90 days', 'all': 'All time'}[k],
+                'qs': urlencode(dict(base, days=k)), 'active': k == c['days']} for k in PERIODS]
+    return render(request, 'validation/analytics.html', dict(data, stats=stats, tab=tab, days=c['days'], period=c['period'],
+        source=c['source'], role=c['role'], periods=periods, roles=ROLES,
+        sources=Visit.objects.exclude(source='').values_list('source', flat=True).distinct().order_by('source'),
+        export_qs=urlencode({'days': c['days'], 'source': c['source'], 'role': c['role']})))
 
 @login_required
 @never_cache

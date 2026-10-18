@@ -1,5 +1,47 @@
-{% extends 'base.html' %}{% load static %}{% block title %}Referral coordination{% endblock %}{% block breadcrumb %}Referral coordination{% endblock %}{% block content %}<link rel="stylesheet" href="{% static 'followups.css' %}"><script defer src="{% static 'referrals.js' %}"></script>
-<a class="back-link" href="{% url 'referral-list' %}">← Referral workspace</a><div class="page-heading"><div><p class="eyebrow">REFERRAL · {{ item.case.patient.reference }}</p><h1>{{ item.case.patient.display_name }}</h1><p class="subtitle">{{ item.destination }}</p></div><span class="badge referral-stage {{ item.status|lower }}">{{ item.get_status_display }}</span></div>
-<div class="detail-grid"><div><section class="panel detail"><p class="eyebrow">HANDOVER DETAILS</p><h2>Referral summary</h2><dl><dt>Receiving service</dt><dd>{{ item.destination }}</dd><dt>Urgency</dt><dd>{{ item.get_urgency_display|default:'Not recorded' }}</dd><dt>Reason & requested evaluation</dt><dd class="clinical-copy">{{ item.reason|linebreaksbr }}</dd><dt>Confirmed by</dt><dd>{{ item.confirmed_by.get_full_name|default:item.confirmed_by.username }} · {{ item.confirmed_at|date:'d M Y, H:i' }}</dd>{% if item.appointment_date %}<dt>Recorded appointment date</dt><dd>{{ item.appointment_date|date:'d F Y' }}</dd>{% endif %}</dl><div class="followup-links"><a class="button" href="{% url 'case-detail' item.case.pk %}">Case & timeline ↗</a><a class="button" href="{% url 'case-report' item.case.pk %}">Download report ↓</a></div><p class="helper">Updates record information received by your facility. Saving does not send a referral or book an appointment.</p></section>
-<section class="panel detail followup-history"><p class="eyebrow">COORDINATION HISTORY</p><h2>Recorded progress</h2>{% for update in updates %}<article><strong>{{ update.get_status_display }}</strong><p class="clinical-copy">{{ update.notes|linebreaksbr }}</p>{% if update.appointment_date %}<p>Appointment · {{ update.appointment_date|date:'d M Y' }}</p>{% endif %}<small>{{ update.actor.get_full_name|default:update.actor.username }} · {{ update.created_at|date:'d M Y, H:i' }}</small></article>{% empty %}<p class="helper">Referral confirmed. Awaiting the first coordination update.</p>{% endfor %}</section></div>
-<section class="panel detail form-panel"><p class="eyebrow">NEXT STEP</p><h2>{% if closed %}Referral record closed{% else %}Update referral progress{% endif %}</h2>{% if closed %}<p>The recorded outcome and history are preserved for continuity of care.</p>{% else %}<p class="helper">Record a stage only after the corresponding response or outcome has been received.</p><form method="post" id="referral-form">{% csrf_token %}{{ form.request_id }}{{ form.version }}{% if form.errors %}<div class="errorlist" role="alert">{{ form.errors }}</div>{% endif %}{{ form.status.label_tag }}{{ form.status }}<div id="referral-notes">{{ form.notes.label_tag }}{{ form.notes }}</div><div id="referral-appointment">{{ form.appointment_date.label_tag }}{{ form.appointment_date }}</div><label class="followup-confirm">{{ form.confirmed }}<span>{{ form.confirmed.label }}</span></label><button class="button primary">Save referral update →</button></form>{% endif %}</section></div>{% endblock %}
+{% extends 'base.html' %}{% load static %}{% block title %}Referral · {{ item.case.patient.display_name }}{% endblock %}{% block breadcrumb %}Referral{% endblock %}{% block content %}
+<link rel="stylesheet" href="{% static 'insights.css' %}?v=1"><link rel="stylesheet" href="{% static 'care.css' %}?v=1"><script defer src="{% static 'referrals.js' %}"></script>
+<div class="vd">
+<a class="cr-back" href="{% url 'referral-list' %}">← All referrals</a>
+<section class="vd-card cr-hero">
+  <div class="cr-hero-id"><span class="vd-avatar lg">{{ initials }}</span><div><p class="vd-hello">Referral · {{ item.case.patient.reference }}</p><h1>{{ item.case.patient.display_name }}</h1><p class="vd-sub">To <strong>{{ item.destination }}</strong> · referred {{ item.confirmed_at|date:'d M Y' }}{% if days_open %} ({{ days_open }} day{{ days_open|pluralize }} ago){% endif %}</p></div></div>
+  <div class="cr-hero-tags">{% if item.urgency %}<span class="cr-urgency u-{{ item.urgency|lower }}">{{ item.get_urgency_display }}</span>{% endif %}<span class="cr-stage st-{{ item.status|lower }}">{{ item.get_status_display }}</span></div>
+  <ol class="cr-steps{% if item.status == 'CANCELLED' %} is-cancelled{% endif %}" aria-label="Referral progress">{% for step in steps %}<li class="{{ step.state }}"{% if step.state == 'current' %} aria-current="step"{% endif %}><i>{% if step.state == 'done' %}✓{% else %}{{ forloop.counter }}{% endif %}</i><span>{{ step.label }}</span></li>{% endfor %}</ol>
+  {% if item.status == 'CANCELLED' %}<p class="cr-cancel-note">This referral was cancelled. Its history is kept below.</p>{% endif %}
+</section>
+
+<div class="cr-detail">
+  <div class="cr-detail-main">
+    <section class="vd-card">
+      <div class="vd-card-head"><div><h2>Referral summary</h2><p>What was handed over to the receiving service</p></div></div>
+      <dl class="cr-facts">
+        <div><dt>Receiving service</dt><dd>{{ item.destination }}</dd></div>
+        <div><dt>Urgency</dt><dd>{{ item.get_urgency_display|default:'Not recorded' }}</dd></div>
+        <div><dt>Appointment</dt><dd>{% if item.appointment_date %}{{ item.appointment_date|date:'d F Y' }}{% else %}Not yet scheduled{% endif %}</dd></div>
+        <div><dt>Confirmed by</dt><dd>{{ item.confirmed_by.get_full_name|default:item.confirmed_by.username }}<small>{{ item.confirmed_at|date:'d M Y, H:i' }}</small></dd></div>
+        <div class="wide"><dt>Reason &amp; requested evaluation</dt><dd class="clinical-copy">{{ item.reason|linebreaksbr }}</dd></div>
+      </dl>
+      <div class="cr-actions"><a class="cr-btn" href="{% url 'case-detail' item.case.pk %}">Case &amp; timeline ↗</a><a class="cr-btn" href="{% url 'case-report-stage' item.case.pk %}">Case report ↗</a></div>
+    </section>
+    <section class="vd-card">
+      <div class="vd-card-head"><div><h2>Progress history</h2><p>Every update recorded by your team</p></div></div>
+      <ol class="cr-timeline">{% for update in updates %}<li><i></i><div><b>{{ update.get_status_display }}</b>{% if update.appointment_date %}<span class="cr-chip-date">Appointment {{ update.appointment_date|date:'d M Y' }}</span>{% endif %}<p class="clinical-copy">{{ update.notes|linebreaksbr }}</p><small>{{ update.actor.get_full_name|default:update.actor.username }} · {{ update.created_at|date:'d M Y, H:i' }}</small></div></li>{% endfor %}
+        <li class="first"><i></i><div><b>Referral confirmed</b><p>Sent to {{ item.destination }}.</p><small>{{ item.confirmed_by.get_full_name|default:item.confirmed_by.username }} · {{ item.confirmed_at|date:'d M Y, H:i' }}</small></div></li></ol>
+    </section>
+  </div>
+  <aside class="cr-detail-side">
+    <section class="vd-card cr-form-card">
+      {% if closed %}<div class="cr-closed"><span>{% if item.status == 'COMPLETED' %}✓{% else %}×{% endif %}</span><h2>Referral record closed</h2><p>The recorded outcome and history are kept for continuity of care.</p></div>
+      {% else %}<div class="vd-card-head"><div><h2>Update progress</h2><p>Record a stage once you’ve heard back from the receiving service.</p></div></div>
+      <form method="post" id="referral-form" class="cr-form">{% csrf_token %}{{ form.request_id }}{{ form.version }}
+        {% if form.errors %}<div class="cr-errors" role="alert"><strong>The update was not saved.</strong>{{ form.errors }}</div>{% endif %}
+        {{ form.status.label_tag }}{{ form.status }}
+        <div id="referral-notes">{{ form.notes.label_tag }}{{ form.notes }}</div>
+        <div id="referral-appointment">{{ form.appointment_date.label_tag }}{{ form.appointment_date }}</div>
+        <label class="cr-confirm">{{ form.confirmed }}<span>{{ form.confirmed.label }}</span></label>
+        <button class="cr-btn primary">Save referral update →</button>
+        <p class="cr-note">Saving records information your facility received. It does not send anything to the receiving service.</p>
+      </form>{% endif %}
+    </section>
+  </aside>
+</div>
+</div>{% endblock %}

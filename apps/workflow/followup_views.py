@@ -19,7 +19,7 @@ def scoped_followups(user):
 @require_GET
 def followup_list(request):
     today=timezone.localdate();all_items=scoped_followups(request.user)
-    counts=all_items.aggregate(open=Count('pk',filter=Q(completed_at__isnull=True)),overdue=Count('pk',filter=Q(completed_at__isnull=True,due_date__lt=today)),today=Count('pk',filter=Q(completed_at__isnull=True,due_date=today)),completed=Count('pk',filter=Q(completed_at__isnull=False)))
+    counts=all_items.aggregate(open=Count('pk',filter=Q(completed_at__isnull=True)),overdue=Count('pk',filter=Q(completed_at__isnull=True,due_date__lt=today)),today=Count('pk',filter=Q(completed_at__isnull=True,due_date=today)),upcoming=Count('pk',filter=Q(completed_at__isnull=True,due_date__gt=today)),completed=Count('pk',filter=Q(completed_at__isnull=False)),all=Count('pk'))
     q=request.GET.get('q','').strip()[:120];status=request.GET.get('status','open');sort=request.GET.get('sort','due')
     filters={'open':Q(completed_at__isnull=True),'overdue':Q(completed_at__isnull=True,due_date__lt=today),'today':Q(completed_at__isnull=True,due_date=today),'upcoming':Q(completed_at__isnull=True,due_date__gt=today),'completed':Q(completed_at__isnull=False),'all':Q()}
     if status not in filters: status='open'
@@ -29,7 +29,17 @@ def followup_list(request):
     if q: items=items.filter(Q(case__patient__display_name__icontains=q)|Q(case__patient__reference__icontains=q)|Q(notes__icontains=q))
     page=Paginator(items.order_by(ordering[sort],'pk'),10).get_page(request.GET.get('page'))
     params=request.GET.copy();params.pop('page',None)
-    return render(request,'followups.html',{'page':page,'counts':counts,'today':today,'q':q,'status':status,'sort':sort,'querystring':params.urlencode()})
+    from datetime import timedelta
+    from urllib.parse import urlencode
+    for item in page:
+        name=[w for w in item.case.patient.display_name.split() if w[:1].isalpha()]
+        item.initials=((name[0][0]+(name[-1][0] if len(name)>1 else '')) if name else '?').upper()
+        item.days=(item.due_date-today).days
+    due=all_items.filter(completed_at__isnull=True,due_date__gte=today,due_date__lt=today+timedelta(days=7)).values_list('due_date',flat=True)
+    week=[{'date':today+timedelta(days=i),'n':sum(1 for d in due if d==today+timedelta(days=i)),'today':i==0} for i in range(7)]
+    tabs=[('open','Open',counts['open']),('overdue','Overdue',counts['overdue']),('today','Due today',counts['today']),('upcoming','Upcoming',counts['upcoming']),('completed','Completed',counts['completed']),('all','All',counts['all'])]
+    tab_qs=urlencode({k:v for k,v in {'q':q,'sort':sort if sort!='due' else ''}.items() if v})
+    return render(request,'followups.html',{'page':page,'counts':counts,'today':today,'q':q,'status':status,'sort':sort,'querystring':params.urlencode(),'tabs':tabs,'tab_qs':tab_qs,'week':week})
 
 @login_required
 @require_http_methods(['GET','POST'])
@@ -42,4 +52,7 @@ def followup_detail(request,pk):
         else:
             messages.success(request,'Follow-up updated. The case timeline and report now reflect this record.')
             return redirect('followup-detail',pk=pk)
-    return render(request,'followup_detail.html',{'item':item,'form':form,'today':timezone.localdate(),'updates':item.updates.select_related('actor').order_by('-created_at','-pk')})
+    name=[w for w in item.case.patient.display_name.split() if w[:1].isalpha()]
+    initials=((name[0][0]+(name[-1][0] if len(name)>1 else '')) if name else '?').upper()
+    today=timezone.localdate()
+    return render(request,'followup_detail.html',{'item':item,'form':form,'today':today,'days':(item.due_date-today).days,'initials':initials,'updates':item.updates.select_related('actor').order_by('-created_at','-pk')})

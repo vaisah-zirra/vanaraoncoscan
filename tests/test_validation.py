@@ -43,7 +43,7 @@ class ValidationTests(TestCase):
         self.assertEqual(Patient.objects.filter(facility=first.facility).count(),4)
         self.assertFalse(first.user.is_staff)
         self.assertFalse(Case.objects.exists())
-        self.assertContains(self.client.get('/workspace/'),'Ready for your first case?')
+        self.assertContains(self.client.get('/workspace/'),'Start your first case')
         case=start_case(user=second.user,patient_id=Patient.objects.filter(facility=second.facility).first().pk)
         self.assertEqual(self.client.get(reverse('case-detail',args=[case.pk])).status_code,404)
         self.assertEqual(self.client.get(reverse('round-feedback',args=[case.walkthrough_round.pk])).status_code,404)
@@ -192,9 +192,11 @@ class ValidationTests(TestCase):
         response=self.client.get(url)
         self.assertEqual(response.status_code,200);self.assertEqual(response.context['stats']['registrations'],1)
         self.assertEqual(response.context['stats']['rounds'],1)
-        self.assertEqual(response.context['participant_page'].paginator.count,1)
-        self.assertContains(response,'Search participants')
-        self.assertEqual(self.client.get(url,{'participant_q':'absent'}).context['participant_page'].paginator.count,0)
+        registered=[t for t in response.context['tabs'] if t['key']=='registered'][0]
+        self.assertEqual(len(registered['rows']),1)
+        for text in ['Welcome back','Landing page visits','Registered users','Completed walkthroughs','Pilot interest','Waitlist','Journey funnel','Search people']:
+            self.assertContains(response,text)
+        self.assertEqual(self.client.get(url,{'tab':'completed'}).context['tab'],'completed')
         self.assertEqual(self.client.get(url,{'role':'Leadership'}).context['stats']['registrations'],0)
         lead=Lead.objects.create(name='Pilot contact',email='pilot@example.test',interest='Pilot',contact_consent_at=timezone.now())
         target=reverse('validation-lead',args=[lead.pk])

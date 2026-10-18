@@ -1,5 +1,45 @@
-{% extends 'base.html' %}{% load static %}{% block title %}Follow-up review{% endblock %}{% block breadcrumb %}Follow-up review{% endblock %}{% block content %}<link rel="stylesheet" href="{% static 'followups.css' %}">
-<script defer src="{% static 'clinical-review.js' %}"></script><a class="back-link" href="{% url 'followup-list' %}">← Follow-up workspace</a><div class="page-heading"><div><p class="eyebrow">SCHEDULED CARE · {{ item.case.patient.reference }}</p><h1>{{ item.case.patient.display_name }}</h1><p class="subtitle">Review date · {{ item.due_date|date:'d F Y' }}</p></div><span class="badge {% if item.completed_at %}follow_up{% elif item.due_date < today %}quality_failure{% else %}review_pending{% endif %}">{% if item.completed_at %}Completed{% elif item.due_date < today %}Overdue{% elif item.due_date == today %}Due today{% else %}Upcoming{% endif %}</span></div>
-<div class="detail-grid"><div><section class="panel detail"><p class="eyebrow">RECORDED CARE PLAN</p><h2>Review context</h2><dl><dt>Presenting history</dt><dd class="clinical-copy">{{ item.case.presenting_concern|default:'Not recorded.'|linebreaksbr }}</dd><dt>Follow-up plan</dt><dd class="clinical-copy">{{ item.notes|default:'Not recorded.'|linebreaksbr }}</dd></dl><div class="followup-links"><a class="button" href="{% url 'case-detail' item.case.pk %}">Case & timeline ↗</a><a class="button" href="{% url 'case-report' item.case.pk %}">Download report ↓</a></div></section>
-{% if updates %}<section class="panel detail followup-history"><p class="eyebrow">SCHEDULING HISTORY</p><h2>Recorded updates</h2>{% for update in updates %}<article><strong>{{ update.get_action_display }}</strong><p>{{ update.details.notes|linebreaksbr }}</p>{% if update.action == 'RESCHEDULE' %}<p>New date: {{ update.details.due_date }}</p>{% endif %}<small>{{ update.actor.get_full_name|default:update.actor.username }} · {{ update.created_at|date:'d M Y, H:i' }}</small></article>{% endfor %}</section>{% endif %}</div>
-<section class="panel detail form-panel">{% if form.errors %}<div class="errorlist" role="alert"><strong>The update was not saved.</strong>{{ form.non_field_errors }}{% for field in form %}{{ field.errors }}{% endfor %}</div>{% endif %}{% if item.completed_at %}<p class="eyebrow">REVIEW COMPLETED</p><h2>Outcome recorded</h2><p class="clinical-copy">{{ item.outcome|default:'No detailed outcome recorded.'|linebreaksbr }}</p><p class="helper">{{ item.completed_by.get_full_name|default:item.completed_by.username|default:'Not recorded' }} · {{ item.completed_at|date:'d M Y, H:i' }}</p><p class="helper">This completed record is preserved in the case history.</p>{% else %}<p class="eyebrow">RECORD THE NEXT STEP</p><h2>Update this follow-up</h2><p class="helper">Complete only after the review has taken place and no further review remains under this plan. Reschedule if care is still pending.</p><form method="post" id="followup-update-form">{% csrf_token %}{{ form.request_id }}{{ form.version }}<fieldset class="followup-actions"><legend>Review action</legend>{% for choice in form.action %}<label>{{ choice.tag }}<span>{{ choice.choice_label }}</span></label>{% endfor %}</fieldset><div data-pathway="COMPLETE RESCHEDULE">{{ form.notes.label_tag }}{{ form.notes }}</div><div data-pathway="RESCHEDULE">{{ form.due_date.label_tag }}{{ form.due_date }}</div><label class="followup-confirm">{{ form.confirmed }}<span>{{ form.confirmed.label }}</span></label><button class="button primary">Save follow-up update →</button></form>{% endif %}</section></div>{% endblock %}
+{% extends 'base.html' %}{% load static %}{% block title %}Follow-up · {{ item.case.patient.display_name }}{% endblock %}{% block breadcrumb %}Follow-up review{% endblock %}{% block content %}
+<link rel="stylesheet" href="{% static 'insights.css' %}?v=1"><link rel="stylesheet" href="{% static 'care.css' %}?v=1"><script defer src="{% static 'clinical-review.js' %}"></script>
+<div class="vd">
+<a class="cr-back" href="{% url 'followup-list' %}">← All follow-ups</a>
+<section class="vd-card cr-hero">
+  <div class="cr-hero-id"><span class="vd-avatar lg">{{ initials }}</span><div><p class="vd-hello">Follow-up review · {{ item.case.patient.reference }}</p><h1>{{ item.case.patient.display_name }}</h1><p class="vd-sub">Review date <strong>{{ item.due_date|date:'l, d F Y' }}</strong></p></div></div>
+  <div class="cr-countdown {% if item.completed_at %}s-done{% elif days < 0 %}s-overdue{% elif days == 0 %}s-today{% else %}s-upcoming{% endif %}">
+    {% if item.completed_at %}<strong>✓</strong><span>Completed {{ item.completed_at|date:'d M Y' }}</span>
+    {% elif days < 0 %}<strong>{{ days|stringformat:'d'|cut:'-' }}</strong><span>day{{ days|pluralize }} overdue</span>
+    {% elif days == 0 %}<strong>Today</strong><span>review is due</span>
+    {% else %}<strong>{{ days }}</strong><span>day{{ days|pluralize }} to go</span>{% endif %}
+  </div>
+</section>
+
+<div class="cr-detail">
+  <div class="cr-detail-main">
+    <section class="vd-card">
+      <div class="vd-card-head"><div><h2>Review context</h2><p>Why this patient is being seen again</p></div></div>
+      <dl class="cr-facts">
+        <div class="wide"><dt>Follow-up plan</dt><dd class="clinical-copy">{{ item.notes|default:'Not recorded.'|linebreaksbr }}</dd></div>
+        <div class="wide"><dt>Presenting history</dt><dd class="clinical-copy">{{ item.case.presenting_concern|default:'Not recorded.'|linebreaksbr }}</dd></div>
+      </dl>
+      <div class="cr-actions"><a class="cr-btn" href="{% url 'case-detail' item.case.pk %}">Case &amp; timeline ↗</a><a class="cr-btn" href="{% url 'case-report-stage' item.case.pk %}">Case report ↗</a></div>
+    </section>
+    {% if updates %}<section class="vd-card">
+      <div class="vd-card-head"><div><h2>Scheduling history</h2><p>Every change recorded by your team</p></div></div>
+      <ol class="cr-timeline">{% for update in updates %}<li><i></i><div><b>{{ update.get_action_display }}</b>{% if update.action == 'RESCHEDULE' %}<span class="cr-chip-date">New date {{ update.details.due_date }}</span>{% endif %}<p class="clinical-copy">{{ update.details.notes|linebreaksbr }}</p><small>{{ update.actor.get_full_name|default:update.actor.username }} · {{ update.created_at|date:'d M Y, H:i' }}</small></div></li>{% endfor %}</ol>
+    </section>{% endif %}
+  </div>
+  <aside class="cr-detail-side">
+    <section class="vd-card cr-form-card">
+      {% if form.errors %}<div class="cr-errors" role="alert"><strong>The update was not saved.</strong>{{ form.non_field_errors }}{% for field in form %}{{ field.errors }}{% endfor %}</div>{% endif %}
+      {% if item.completed_at %}<div class="cr-closed"><span>✓</span><h2>Outcome recorded</h2><p class="clinical-copy">{{ item.outcome|default:'No detailed outcome recorded.'|linebreaksbr }}</p><small>{{ item.completed_by.get_full_name|default:item.completed_by.username|default:'Not recorded' }} · {{ item.completed_at|date:'d M Y, H:i' }}</small></div>
+      {% else %}<div class="vd-card-head"><div><h2>Record the next step</h2><p>Complete once the review has happened, or reschedule if care is still pending.</p></div></div>
+      <form method="post" id="followup-update-form" class="cr-form">{% csrf_token %}{{ form.request_id }}{{ form.version }}
+        <fieldset class="cr-choice"><legend class="sr-only">Review action</legend>{% for choice in form.action %}<label>{{ choice.tag }}<span>{{ choice.choice_label }}</span></label>{% endfor %}</fieldset>
+        <div data-pathway="COMPLETE RESCHEDULE">{{ form.notes.label_tag }}{{ form.notes }}</div>
+        <div data-pathway="RESCHEDULE">{{ form.due_date.label_tag }}{{ form.due_date }}</div>
+        <label class="cr-confirm">{{ form.confirmed }}<span>{{ form.confirmed.label }}</span></label>
+        <button class="cr-btn primary">Save follow-up update →</button>
+      </form>{% endif %}
+    </section>
+  </aside>
+</div>
+</div>{% endblock %}

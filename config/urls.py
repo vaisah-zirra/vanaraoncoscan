@@ -10,6 +10,7 @@ from apps.dashboard.views import dashboard, case_detail, new_assessment
 from apps.workflow.views import clinician_review
 
 from apps.workflow.report_views import case_report, report_stage
+from apps.workflow.review_views import specialist_reviews
 
 from apps.workflow.followup_views import followup_list, followup_detail
 
@@ -26,6 +27,7 @@ urlpatterns = [
     path('sitemap.xml', sitemap, name='sitemap'),
     path('', include('apps.validation.urls')),
     path('', landing, name='landing'),
+    path('specialist-reviews/', specialist_reviews, name='specialist-reviews'),
     path('referrals/', referral_list, name='referral-list'),
     path('referrals/<int:pk>/', referral_detail, name='referral-detail'),
     path('follow-ups/', followup_list, name='followup-list'),
