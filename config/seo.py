@@ -6,7 +6,7 @@ from django.views.decorators.http import require_safe
 @require_safe
 def robots(request):
     return HttpResponse(
-        'User-agent: *\nAllow: /\n'
+        'User-agent: *\nAllow: /\nDisallow: /access/\n'
         'Sitemap: https://vanaraoncoscan.cyou/sitemap.xml\n',
         content_type='text/plain',
     )

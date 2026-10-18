@@ -1,3 +1,4 @@
+from apps.workflow import teleradiology
 from django.contrib import admin
 from apps.accounts.views import DemoLoginView
 from django.contrib.auth import views as auth_views
@@ -8,7 +9,8 @@ from apps.dashboard.views import dashboard, case_detail, new_assessment
 
 from apps.workflow.views import clinician_review
 
-from apps.workflow.report_views import case_report
+from apps.workflow.report_views import case_report, report_stage
+from apps.workflow.review_views import specialist_reviews
 
 from apps.workflow.followup_views import followup_list, followup_detail
 
@@ -25,17 +27,22 @@ urlpatterns = [
     path('sitemap.xml', sitemap, name='sitemap'),
     path('', include('apps.validation.urls')),
     path('', landing, name='landing'),
+    path('specialist-reviews/', specialist_reviews, name='specialist-reviews'),
     path('referrals/', referral_list, name='referral-list'),
     path('referrals/<int:pk>/', referral_detail, name='referral-detail'),
     path('follow-ups/', followup_list, name='followup-list'),
     path('follow-ups/<int:pk>/', followup_detail, name='followup-detail'),
     path('cases/<uuid:pk>/report.pdf', case_report, name='case-report'),
+    path('cases/<uuid:pk>/report/', report_stage, name='case-report-stage'),
     path('cases/<uuid:pk>/review/', clinician_review, name='clinician-review'),
     path('cases/<uuid:pk>/quality/', quality_check, name='quality-check'),
     path('cases/<uuid:pk>/assessment/', assessment_result, name='assessment-result'),
     path('cases/<uuid:pk>/images/', image_upload, name='image-upload'),
     path('library/images/<int:pk>/', sample_image, name='sample-image'),
     path('cases/<uuid:pk>/try-another/', try_another_sample, name='try-another-sample'),
+    path('teleradiology/', teleradiology.review_queue, name='teleradiology-queue'),
+    path('teleradiology/reviews/<int:pk>/', teleradiology.review_detail, name='teleradiology-review'),
+    path('teleradiology/reviews/<int:pk>/status/', teleradiology.review_status, name='teleradiology-status'),
     path('admin/', admin.site.urls),
     path('accounts/login/', DemoLoginView.as_view(), name='login'),
     path('accounts/logout/', auth_views.LogoutView.as_view(), name='logout'),

@@ -51,4 +51,6 @@ class DemoSeedTests(TestCase):
         self.assertFalse(reviewer.user_permissions.exists())
         self.assertEqual(Membership.objects.get(user=reviewer).role, Membership.Role.REVIEWER)
         self.client.force_login(reviewer)
-        self.assertNotContains(self.client.get('/workspace/'), 'Amina Yusuf')
+        response = self.client.get('/workspace/', follow=True)
+        self.assertRedirects(response, '/teleradiology/')
+        self.assertNotContains(response, 'Amina Yusuf')

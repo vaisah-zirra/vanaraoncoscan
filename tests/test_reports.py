@@ -48,14 +48,14 @@ class CaseReportTests(TestCase):
 
     def test_every_page_has_notice_identity_and_page_number(self):
         reader,text=self.parsed()
-        self.assertGreaterEqual(len(reader.pages),4)
+        self.assertGreaterEqual(len(reader.pages),2)
         for index,page in enumerate(reader.pages,1):
             content=page.extract_text()
             self.assertIn('Not for clinical diagnosis',content)
             self.assertIn('DEMO-R',content)
             self.assertIn(f'Page {index} of {len(reader.pages)}',content)
         self.assertIn('Recorded presenting history & clinical question <unchanged>.',text)
-        self.assertIn('Predefined specialist opinion',text)
+        self.assertIn('No teleradiology review has been requested',text)
         self.assertIn('No referral or follow-up plan has been confirmed',text)
 
     def test_failed_quality_suppresses_diagnostic_result(self):
@@ -97,7 +97,7 @@ class CaseReportTests(TestCase):
     def test_long_notes_paginate_without_losing_content(self):
         self.case.presenting_concern=('Detailed history and previous assessment. '*300)+'END OF LONG HISTORY'
         reader,text=self.parsed()
-        self.assertIn('END OF LONG HISTORY',text)
+        self.assertIn('END OF LONG HISTORY',' '.join(text.split()))
         self.assertIn('Report provenance',text)
 
     def test_verified_image_and_matching_annotation_only(self):

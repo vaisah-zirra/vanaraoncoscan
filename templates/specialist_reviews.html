@@ -1,0 +1,36 @@
+{% extends 'base.html' %}{% load static %}{% load dashboard_labels %}{% block title %}Specialist reviews{% endblock %}{% block breadcrumb %}Specialist reviews{% endblock %}{% block content %}
+<link rel="stylesheet" href="{% static 'insights.css' %}?v=3"><link rel="stylesheet" href="{% static 'care.css' %}?v=1"><script defer src="{% static 'care.js' %}?v=1"></script>
+<div class="vd">
+<header class="vd-head">
+  <div><p class="vd-hello">Teleradiology</p><h1>Specialist reviews</h1><p class="vd-sub">Second reads from remote radiologists on your cases. Signed reports appear here and on each case.</p></div>
+  <div class="vd-controls"><a class="cr-btn" href="{% url 'dashboard' %}">Case overview ↗</a></div>
+</header>
+
+<section class="vd-kpis cr-kpis-4" aria-label="Review totals">
+  <a class="vd-kpi tone-gold" href="?status=awaiting"><div class="vd-kpi-top"><span class="vd-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span>{% if kpis.awaiting %}<span class="cr-live"><i></i>Live</span>{% endif %}</div><p class="vd-kpi-label">Awaiting radiologist</p><strong class="vd-kpi-value">{{ kpis.awaiting }}</strong></a>
+  <a class="vd-kpi tone-teal" href="?status=signed"><div class="vd-kpi-top"><span class="vd-icon"><svg viewBox="0 0 24 24"><path d="M4 20h4l10-10-4-4L4 16z"/><path d="M13.5 6.5l4 4"/></svg></span></div><p class="vd-kpi-label">Signed second reads</p><strong class="vd-kpi-value">{{ kpis.signed }}</strong></a>
+  <div class="vd-kpi tone-blue"><div class="vd-kpi-top"><span class="vd-icon"><svg viewBox="0 0 24 24"><path d="M5 12.5l4 4L19 7"/></svg></span></div><p class="vd-kpi-label">Agreed with the AI</p><strong class="vd-kpi-value">{% if kpis.agreement is not None %}{{ kpis.agreement }}%{% else %}—{% endif %}</strong>{% if kpis.changed %}<small>{{ kpis.changed }} read{{ kpis.changed|pluralize }} refined the AI result</small>{% endif %}</div>
+  <div class="vd-kpi tone-coral"><div class="vd-kpi-top"><span class="vd-icon"><svg viewBox="0 0 24 24"><path d="M13 3L4 14h7l-1 7 9-11h-7z"/></svg></span></div><p class="vd-kpi-label">Median turnaround</p><strong class="vd-kpi-value">{{ kpis.turnaround }}</strong><small>from request to signature</small></div>
+</section>
+
+<section class="vd-card vd-people">
+  <div class="vd-card-head vd-people-head">
+    <div><h2>Second reads</h2><p>Open a case to see the full signed report</p></div>
+    <form method="get" class="vd-search"><input type="hidden" name="status" value="{{ status }}"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg><label class="sr-only" for="sr-q">Search</label><input id="sr-q" type="search" name="q" value="{{ q }}" placeholder="Search patient, reference or recommendation…"></form>
+  </div>
+  <nav class="vd-tabs" aria-label="Review status">{% for key,label,n in tabs %}<a class="cr-tab" href="?status={{ key }}{% if q %}&q={{ q|urlencode }}{% endif %}"{% if key == status %} aria-current="page"{% endif %}>{{ label }} <span>{{ n }}</span></a>{% endfor %}</nav>
+  {% if rows %}<div class="vd-table-wrap"><table class="vd-table">
+    <thead><tr><th>Patient</th><th>Requested</th><th>Status</th><th>Final BI-RADS</th><th>Agreement</th><th>Recommendation</th><th></th></tr></thead>
+    <tbody>{% for r in rows %}<tr>
+      <td><a class="vd-person" href="{% url 'case-detail' r.case.pk %}#specialist-response"><span class="vd-avatar">{{ r.initials }}</span><span><b>{{ r.patient.display_name }}</b><small>{{ r.patient.reference }}</small></span></a></td>
+      <td>{{ r.review.requested_at|date:'d M Y, H:i' }}<small>{{ r.review.requested_at|ago }}</small></td>
+      <td>{% if r.review.signed_at %}<span class="cr-pill ok">✓ Signed</span><small>{{ r.reviewer }}{% if r.review.signed_at %} · {{ r.review.signed_at|date:'d M, H:i' }}{% endif %}</small>{% else %}<span class="cr-pill wait" data-pending-review="{% url 'teleradiology-status' r.review.pk %}"><i></i>Awaiting radiologist</span><small>Updates automatically</small>{% endif %}</td>
+      <td>{% if r.review.birads %}<span class="cr-birads t-{{ r.tone }}">BI-RADS {{ r.review.birads }}</span><small>{{ r.birads_name }}</small>{% else %}<small>—</small>{% endif %}</td>
+      <td>{% if r.review.concordance %}<span class="cr-agree a-{{ r.review.concordance|lower }}">{{ r.review.get_concordance_display }}</span>{% else %}<small>—</small>{% endif %}</td>
+      <td class="vd-msg">{{ r.review.recommendation|default:'—'|linebreaksbr }}</td>
+      <td><a class="cr-open" href="{% url 'case-detail' r.case.pk %}#specialist-response">Open →</a></td>
+    </tr>{% endfor %}</tbody>
+  </table></div>
+  {% else %}<div class="vd-empty"><strong>{% if q %}No reviews match your search{% elif status == 'awaiting' %}Nothing waiting for a radiologist{% elif status == 'signed' %}No signed second reads yet{% else %}No specialist reviews yet{% endif %}</strong><p>Second reads are requested from a case’s clinical review. Low-confidence AI results are sent automatically.</p></div>{% endif %}
+</section>
+</div>{% endblock %}

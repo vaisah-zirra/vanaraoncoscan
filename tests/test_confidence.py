@@ -32,20 +32,20 @@ class ConfidenceDisplayTests(TestCase):
 
     def fresh(self): return Case.objects.get(pk=self.case.pk)
 
-    def test_matching_demo_has_90_percent_and_ten_percent_gap(self):
+    def test_matching_demo_has_model_score_and_exact_gap(self):
         display=assessment_display(self.fresh())
-        self.assertEqual(display['score'],90); self.assertEqual(display['remaining'],10)
+        self.assertEqual(display['score'],93.6); self.assertEqual(display['remaining'],6.4)
         self.assertEqual(display['label'],'Highly suggestive of malignancy')
         response=self.client.get(reverse('assessment-result',args=[self.case.pk]))
-        self.assertContains(response,'stroke-dasharray="90 10"')
-        self.assertContains(response,'Demo score')
+        self.assertContains(response,'stroke-dasharray="93.6 6.4"')
+        self.assertContains(response,'VOS-BUS v0.9')
         self.assertContains(response,'not confidence thresholds')
 
     def test_pdf_matches_ui_and_contains_legend(self):
         data=report_data(self.fresh())
         self.assertEqual(data['display'],assessment_display(self.fresh()))
         text='\n'.join(p.extract_text() for p in PdfReader(BytesIO(render_report(data))).pages)
-        for expected in ['90%','Demo score','Highly suggestive of malignancy','Benign-appearing finding','Assessment colours & interpretation','not cancer probabilities']:
+        for expected in ['93.6%','VOS-BUS v0.9','Highly suggestive of malignancy','Benign-appearing finding','Assessment colours & interpretation','classification certainty']:
             self.assertIn(expected,text)
 
     def test_failed_quality_and_pending_never_get_scores(self):
@@ -71,4 +71,4 @@ class ConfidenceDisplayTests(TestCase):
         for route,args in [('case-detail',[self.case.pk]),('clinician-review',[self.case.pk]),('dashboard',[])]:
             response=self.client.get(reverse(route,args=args))
             self.assertContains(response,'Highly suggestive of malignancy')
-            self.assertContains(response,'Demo score')
+            self.assertContains(response,'VOS-BUS v0.9')

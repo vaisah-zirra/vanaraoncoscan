@@ -44,15 +44,18 @@ def register(request, data):
     name = data['full_name'].split(' ', 1)
     user = get_user_model().objects.create_user(username='mvp_'+hashlib.sha256(email.encode()).hexdigest(), email=email,
         password=data['password1'], first_name=name[0], last_name=name[1] if len(name)>1 else '')
-    facility = Facility.objects.create(name=f"{data['organisation'][:145]} · Demo workspace", slug='mvp-'+uuid.uuid4().hex, is_demo=True)
+    facility = Facility.objects.create(name=f"{data['organisation'][:145]} · Pilot workspace", slug='mvp-'+uuid.uuid4().hex, is_demo=True)
     Membership.objects.create(user=user, facility=facility, role=Membership.Role.FACILITY)
     source, campaign = attribution(request)
     participant = Participant.objects.create(user=user, facility=facility, role=data['role'], organisation=data['organisation'], source=source,
         campaign=campaign, whatsapp=data['whatsapp'], whatsapp_consent=data['whatsapp_consent'], research_consent_at=timezone.now())
-    for code, name in [('A','Amina Yusuf'),('B','Ngozi Eze'),('C','Grace Adeyemi'),('D','Fatima Ibrahim')]:
-        Patient.objects.create(facility=facility, reference='DEMO-'+code, display_name=name, is_synthetic=True)
+    seed_sample_patients(facility)
     Visit.objects.filter(pk=request.session.get('validation_visit')).update(participant=participant)
     return user
+
+def seed_sample_patients(facility):
+    for code, name in [('A','Amina Yusuf'),('B','Ngozi Eze'),('C','Grace Adeyemi'),('D','Fatima Ibrahim')]:
+        Patient.objects.create(facility=facility, reference='DEMO-'+code, display_name=name, is_synthetic=True)
 
 def start_round(user, case):
     participant = participant_for(user)
@@ -71,7 +74,7 @@ def round_progress(item):
         steps += [('Open the assessment and annotations', assessment is not None and item.assessment_viewed_at is not None, 'assessment-result'),
                   ('Record a care decision', case.clinical_decisions.exists(), 'clinician-review')]
     before_report = all(step[1] for step in steps)
-    steps.append(('Download the quality report' if failed else 'Download the case report', before_report and item.report_requested_at is not None, 'case-report'))
+    steps.append(('Download the quality report' if failed else 'Download the case report', before_report and item.report_requested_at is not None, 'case-report' if failed else 'case-report-stage'))
     done = sum(bool(step[1]) for step in steps)
     next_step = next((step for step in steps if not step[1]), None)
     return {'round':item, 'steps':[{'label':label, 'done':bool(complete)} for label,complete,_ in steps],

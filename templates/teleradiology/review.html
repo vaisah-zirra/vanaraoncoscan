@@ -1,0 +1,37 @@
+{% extends 'base.html' %}{% load static %}{% load dashboard_labels %}{% load assessment_display %}{% block title %}Second-read review{% endblock %}{% block breadcrumb %}Teleradiology review{% endblock %}{% block content %}
+<link rel="stylesheet" href="{% static 'assessment.css' %}"><link rel="stylesheet" href="{% static 'structured-report.css' %}"><link rel="stylesheet" href="{% static 'teleradiology.css' %}"><script defer src="{% static 'teleradiology.js' %}"></script>
+<a class="back-link" href="{% url 'teleradiology-queue' %}">← Review queue</a>
+<div class="page-heading"><div><p class="eyebrow">TELERADIOLOGY · SECOND READ</p><h1>{{ case.patient.display_name }}</h1><p class="subtitle">{{ case.patient.reference }}{% if case.attachment %} · {{ case.attachment.sample.study_id }}{% endif %} · {{ case.patient.facility.name }}</p></div>{% if review.signed_at %}<span class="tr-priority signed big">✓ Signed {{ review.signed_at|date:'d M Y, H:i' }}</span>{% else %}<span class="tr-priority {{ priority.0 }} big">{{ priority.1 }} · awaiting review</span>{% endif %}</div>
+<div class="tr-layout">
+<div class="tr-left">
+  <section class="panel tr-viewer"><div class="panel-heading"><div><h2>Study</h2><p>{{ case.attachment.sample.display_filename|default:'No image attached' }}{% if result.width %} · {{ result.width }} × {{ result.height }} px{% endif %}</p></div>{% if result.boxes %}<label class="annotation-toggle"><input type="checkbox" id="tr-annotations" checked> AI overlay</label>{% endif %}</div>
+  {% if case.attachment and result.width %}<div class="tr-stage"><svg viewBox="0 0 {{ result.width }} {{ result.height }}" role="img" aria-label="Breast ultrasound study with AI lesion overlay"><image href="{% url 'sample-image' case.attachment.sample.pk %}" width="{{ result.width }}" height="{{ result.height }}"/>{% for box in result.boxes %}<g class="tr-overlay"><rect x="{{ box.x }}" y="{{ box.y }}" width="{{ box.width }}" height="{{ box.height }}" class="roi-box"/><rect x="{{ box.x }}" y="{{ box.label_y }}" width="190" height="28" rx="5" fill="#167958"/><text x="{{ box.text_x }}" y="{{ box.text_y }}" fill="white" font-size="15" font-family="sans-serif">AI · Lesion {{ forloop.counter }}</text></g>{% endfor %}</svg></div>
+  {% elif case.attachment %}<div class="tr-stage"><img src="{% url 'sample-image' case.attachment.sample.pk %}" alt="Breast ultrasound study"></div>{% else %}<p class="helper">No image is attached to this case. Review the original examination at the referring facility.</p>{% endif %}
+  </section>
+  {% structured_report case %}
+</div>
+<aside class="tr-right">
+  <section class="panel detail"><p class="eyebrow">REFERRAL CONTEXT</p><h2>Why this study is here</h2><p class="tr-reason">{{ reason }}</p>
+  <dl><dt>Clinical history</dt><dd class="clinical-copy">{{ case.presenting_concern|default:'Not recorded.'|linebreaksbr }}</dd>{% if question %}<dt>Clinical question</dt><dd class="clinical-copy">{{ question|linebreaksbr }}</dd>{% endif %}<dt>AI result</dt><dd>{{ display.label }}{% if report %} · BI-RADS {{ report.birads.category }}{% if report.birads.provisional %} (provisional){% endif %}{% endif %}{% if display.has_score %} · {{ display.score }}% confidence{% endif %}</dd><dt>Requested</dt><dd>{{ review.requested_at|date:'d M Y, H:i' }} ({{ review.requested_at|ago }})</dd></dl></section>
+
+  {% if review.signed_at %}
+  <section class="panel detail tr-signed"><p class="eyebrow">SIGNED SECOND READ</p><h2>{{ review.get_concordance_display }}</h2>
+  <div class="tr-birads-line">Final category <strong>BI-RADS {{ review.birads }}</strong></div>
+  <dl><dt>Findings</dt><dd class="clinical-copy">{{ review.findings|linebreaksbr }}</dd><dt>Impression</dt><dd class="clinical-copy">{{ review.assessment|linebreaksbr }}</dd><dt>Recommendation</dt><dd class="clinical-copy">{{ review.recommendation|linebreaksbr }}</dd></dl>
+  <p class="helper">Signed by {{ review.reviewer.get_full_name|default:review.reviewer.username }} · {{ review.signed_at|date:'d M Y, H:i' }}</p></section>
+  {% else %}
+  <section class="panel detail tr-form-panel"><p class="eyebrow">YOUR READ</p><h2>Second-read report</h2>
+  {% if has_draft %}<button type="button" class="button tr-draft" id="tr-insert-draft" data-draft='{{ draft_json }}'>✦ Start from AI-drafted wording</button><p class="helper">Inserts editable wording based on the AI report. Review and amend every field before signing.</p>{% endif %}
+  <form method="post" id="tr-form" novalidate>{% csrf_token %}
+  {% if form.errors %}<div class="review-errors" role="alert"><strong>The review has not been signed.</strong>{{ form.non_field_errors }}{% for field in form %}{% for error in field.errors %}<p>{{ field.label }}: {{ error }}</p>{% endfor %}{% endfor %}</div>{% endif %}
+  <fieldset class="tr-concordance"><legend>{{ form.concordance.label }}</legend>{% for choice in form.concordance %}<label class="tr-choice tr-{{ choice.data.value|lower }}">{{ choice.tag }}<span>{{ choice.choice_label }}</span></label>{% endfor %}</fieldset>
+  <div class="review-field">{{ form.birads.label_tag }}{{ form.birads }}</div>
+  <div class="review-field">{{ form.findings.label_tag }}{{ form.findings }}</div>
+  <div class="review-field">{{ form.assessment.label_tag }}{{ form.assessment }}</div>
+  <div class="review-field">{{ form.recommendation.label_tag }}{{ form.recommendation }}</div>
+  <label class="review-confirm">{{ form.confirmed }}<span>{{ form.confirmed.label }}</span></label>
+  <p class="helper">Signing as {{ user.get_full_name|default:user.username }}. The signed report is returned to the referring facility and added to the case record.</p>
+  <button class="button primary tr-sign" type="submit">Sign & return report →</button></form></section>
+  {% endif %}
+</aside></div>
+{% endblock %}

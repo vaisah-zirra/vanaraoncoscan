@@ -1,0 +1,12 @@
+<nav class="journey" aria-label="Case progress" style="--fill:{{ fill }}%">
+  <div class="journey-head"><span class="journey-title">Case journey</span><span class="journey-meta">{{ completed }} of {{ total }} complete{% if participant %}<span class="journey-walk" title="Your walkthrough progress">Walkthrough {{ walk|default:0 }}%</span>{% endif %}</span></div>
+  <ol class="journey-track">
+    {% for step in steps %}<li class="js-{{ step.state }}"{% if step.state == 'current' and on_page %} aria-current="step"{% endif %}>
+      {% if step.url %}<a href="{{ step.url }}">{% else %}<span class="journey-node">{% endif %}
+        <span class="journey-dot" aria-hidden="true">{% if step.state == 'done' %}<svg viewBox="0 0 16 16"><path d="M3.5 8.5l3 3 6-7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>{% elif step.state == 'blocked' %}!{% else %}{{ step.n }}{% endif %}</span>
+        <span class="journey-label">{{ step.label }}</span>
+        <span class="journey-note">{{ step.note }}</span>
+      {% if step.url %}</a>{% else %}</span>{% endif %}
+    </li>{% endfor %}
+  </ol>
+</nav>

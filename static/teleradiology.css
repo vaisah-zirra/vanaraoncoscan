@@ -1,0 +1,56 @@
+/* Teleradiology portal */
+.nav-label-tight{margin-top:26px}
+.nav-count{margin-left:auto;background:#c48a1c;color:#fff;font-size:10px;font-weight:700;border-radius:10px;padding:2px 7px;min-width:20px;text-align:center}
+.tr-live{display:inline-flex;align-items:center;gap:6px;font-size:11px;color:#4e7470;background:#fff;border:1px solid var(--line);border-radius:20px;padding:7px 13px;white-space:nowrap}
+.tr-tabs{display:flex;gap:6px;margin:0 0 14px}
+.tr-tabs a{padding:9px 15px;border-radius:9px;font-size:12px;font-weight:600;color:#5d7676;border:1px solid transparent}
+.tr-tabs a b{margin-left:6px;font-size:11px;background:#e9efef;border-radius:10px;padding:1px 7px}
+.tr-tabs a.active{background:#fff;border-color:var(--line);color:var(--teal)}
+.tr-list{padding:6px}
+.tr-row{display:grid;grid-template-columns:72px minmax(160px,1.3fr) minmax(170px,1.2fr) 96px 110px 20px;gap:16px;align-items:center;padding:12px 14px;border-radius:11px;transition:background .15s}
+.tr-row+.tr-row{border-top:1px solid var(--line)}
+.tr-row:hover{background:#f4f9f8}
+.tr-thumb{width:72px;height:50px;border-radius:7px;overflow:hidden;background:#112b23;display:grid;place-items:center;color:#9bb;font-size:9px}
+.tr-thumb img{width:100%;height:100%;object-fit:cover}
+.tr-main strong,.tr-ai strong{display:block;font-size:13px}
+.tr-main small,.tr-ai small,.tr-time small{display:block;font-size:11px;color:#738586}
+.tr-ai{display:flex;gap:9px;align-items:flex-start}
+.tr-dot{width:9px;height:9px;border-radius:50%;margin-top:5px;flex-shrink:0}
+.tr-time{font-size:12px;font-weight:550;color:#2b4f4e}
+.tr-open{color:var(--teal);font-weight:700}
+.tr-priority{display:inline-block;font-size:10.5px;font-weight:700;letter-spacing:.3px;border-radius:20px;padding:4px 10px;text-align:center;white-space:nowrap}
+.tr-priority.urgent{background:#fbe9ec;color:#a8324a}
+.tr-priority.priority{background:#fdf3e2;color:#9a650d}
+.tr-priority.routine{background:#e9f4f1;color:#19765b}
+.tr-priority.signed{background:#e6f3ec;color:#19765b}
+.tr-priority.big{font-size:12px;padding:8px 14px}
+.tr-empty{padding:40px;text-align:center}
+.tr-layout{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(320px,1fr);gap:24px;align-items:start}
+.tr-right{position:sticky;top:20px;display:grid;gap:18px}
+.tr-right .panel{margin:0}
+.tr-viewer{padding:22px}
+.tr-stage{background:#0d211b;border-radius:12px;padding:12px;margin-top:14px}
+.tr-stage svg,.tr-stage img{display:block;width:100%;height:auto;border-radius:6px}
+.tr-reason{font-size:13px;font-weight:600;color:#9a650d;background:#fdf5e7;border-radius:9px;padding:10px 12px}
+.tr-draft{width:100%;justify-content:center;border-style:dashed}
+.tr-concordance{border:0;padding:0;margin:16px 0 8px;display:grid;gap:8px}
+.tr-concordance legend{font-size:12px;font-weight:600;margin-bottom:8px}
+.tr-choice{display:flex;gap:10px;align-items:center;border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:13px;cursor:pointer;transition:border-color .15s,background .15s}
+.tr-choice:has(input:checked){border-color:var(--teal);background:#eef7f4}
+.tr-choice.tr-disagree:has(input:checked){border-color:#b54d25;background:#fdf0ea}
+.tr-choice.tr-partial:has(input:checked){border-color:#9a650d;background:#fdf5e7}
+.tr-form-panel select,.tr-form-panel textarea{width:100%}
+.tr-filled{animation:tr-flash 1.2s ease}
+@keyframes tr-flash{0%{background:#e3f4ee}100%{background:#fff}}
+.tr-sign{width:100%;margin-top:6px}
+.tr-signed h2{color:#19765b}
+.tr-birads-line{font-size:13px;margin:4px 0 12px}
+.tr-birads-line strong{background:#183d3d;color:#fff;border-radius:7px;padding:3px 9px;margin-left:6px}
+@media (max-width:1100px){.tr-layout{grid-template-columns:1fr}.tr-right{position:static}}
+@media (max-width:760px){.tr-row{grid-template-columns:56px 1fr;gap:10px}.tr-thumb{width:56px;height:42px}.tr-ai,.tr-priority,.tr-time{grid-column:2}.tr-open{display:none}}
+@media (prefers-reduced-motion:reduce){.tr-filled{animation:none}}
+.tr-choice input[type=radio],.review-confirm input[type=checkbox]{width:18px;height:18px;min-height:18px;flex:0 0 18px;padding:0;margin:0;accent-color:#147c70}
+.tr-choice span{flex:1;text-align:left}
+.nav-item{white-space:nowrap}
+.tr-draft:disabled{opacity:1;color:#19765b;background:#eef7f4;border-color:#bfe0d2;border-style:solid;cursor:default}
+.tr-layout>*{min-width:0}.tr-viewer .panel-heading{flex-wrap:wrap;gap:8px}@media (max-width:760px){.tr-viewer{padding:16px}}

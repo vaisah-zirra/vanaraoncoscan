@@ -13,6 +13,9 @@ from apps.workflow.services import confirm_decision
 @require_http_methods(['GET','POST'])
 def clinician_review(request, pk):
     case = get_object_or_404(scoped_cases(request.user), pk=pk)
+    from apps.workflow.teleradiology import resolve_simulated_reviews
+    if request.method == 'GET' and resolve_simulated_reviews(case):
+        case = get_object_or_404(scoped_cases(request.user), pk=pk)
     assessment = AIAssessment.objects.filter(case=case).first()
     quality = QualityAssessment.objects.filter(case=case).first()
     decisions = case.clinical_decisions.select_related('actor')
@@ -31,14 +34,27 @@ def clinician_review(request, pk):
         suggestion = 'Consider referral for further assessment. Confirm the destination and urgency after clinical review.'
     else:
         suggestion = 'Consider specialist review to resolve uncertainty before deciding the ongoing care plan.'
+    from apps.clinical.report_library import report_for_assessment
+    report = report_for_assessment(assessment, getattr(case, 'attachment', None)) if quality and quality.adequate else None
+    signed_review = case.specialistreview_set.filter(signed_at__isnull=False).order_by('-signed_at').first()
+    if signed_review and signed_review.birads:
+        from apps.clinical.report_library import BIRADS
+        name = BIRADS.get(signed_review.birads, ('',))[0]
+        first = (signed_review.recommendation or '').strip().splitlines()[0].lstrip('0123456789. ') if signed_review.recommendation else ''
+        suggestion = (f"Specialist second read: BI-RADS {signed_review.birads} – {name}. {first} "
+                      "Choose the care pathway that implements the specialist recommendation.")
+    elif report:
+        b = report['birads']
+        lead = f"AI report: BI-RADS {b['category']}{' (provisional)' if b['provisional'] else ''} – {b['name']}. {report['recommendations'][0]}"
+        suggestion = lead + ' ' + suggestion
     if request.method == 'POST' and form.is_valid():
         try:
             confirm_decision(user=request.user, case_id=pk, data=request.POST)
         except ValidationError as exc:
             form.add_error(None, exc.messages[0])
         else:
-            messages.success(request, 'Clinical decision saved. The care plan and case timeline have been updated.')
-            return redirect('clinician-review', pk=pk)
+            messages.success(request, 'Care plan saved. Your case report is ready to download.')
+            return redirect('case-report-stage', pk=pk)
     return render(request, 'clinician_review.html', {'case':case, 'assessment':assessment, 'quality':quality,
         'result':assessment.details if assessment else {}, 'suggestion':suggestion, 'form':form, 'eligible':eligible, 'decisions':decisions,
         'reviews':case.specialistreview_set.select_related('reviewer'), 'followups':case.followup_set.all()})

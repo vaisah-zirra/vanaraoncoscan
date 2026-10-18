@@ -7,6 +7,15 @@ class SpecialistReview(models.Model):
     assessment = models.TextField(blank=True)
     recommendation = models.TextField(blank=True)
     agrees_with_ai = models.BooleanField(null=True)
+    class Concordance(models.TextChoices):
+        AGREE = 'AGREE', 'Agree with AI'
+        PARTIAL = 'PARTIAL', 'Partially agree'
+        DISAGREE = 'DISAGREE', 'Disagree with AI'
+    concordance = models.CharField(max_length=10, choices=Concordance.choices, blank=True)
+    birads = models.CharField('BI-RADS category', max_length=3, blank=True)
+    findings = models.TextField(blank=True)
+    # Pilot only: signed automatically from the image's predefined second read (never shown to testers).
+    simulated = models.BooleanField(default=False)
     requested_at = models.DateTimeField(auto_now_add=True)
     signed_at = models.DateTimeField(null=True, blank=True)
 

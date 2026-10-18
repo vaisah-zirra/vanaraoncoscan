@@ -1,0 +1,25 @@
+/* First-run welcome on the overview */
+.onboard{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.05fr);gap:40px;align-items:center;background:linear-gradient(135deg,#ffffff 0%,#f1f8f4 100%);border:1px solid var(--line);border-radius:22px;padding:48px 52px;margin:6px 0 24px;animation:page-rise .5s ease both}
+.onboard-intro h1{font-size:46px;line-height:1.05;letter-spacing:-1.5px;margin:10px 0 16px}
+.onboard-lead{font-size:16px;line-height:1.65;color:#4e6a68;max-width:460px;margin:0 0 28px}
+.onboard-cta{font-size:15px;padding:16px 26px;border-radius:12px;box-shadow:0 12px 30px #147c7033}
+.onboard-cta span{margin-left:6px;transition:transform .2s}
+.onboard-cta:hover span{transform:translateX(4px)}
+.onboard-note{font-size:12px;color:#6b7f7f;margin:18px 0 0}
+.onboard-note span{color:#19765b;font-weight:700;margin-right:4px}
+.onboard-steps{list-style:none;margin:0;padding:0;display:grid;gap:10px;counter-reset:none}
+.onboard-steps li{display:flex;gap:16px;align-items:flex-start;padding:16px 18px;background:#fff;border:1px solid var(--line);border-radius:14px;opacity:0;transform:translateY(8px);animation:os-in .45s ease forwards}
+.onboard-steps li:nth-child(1){animation-delay:.1s}.onboard-steps li:nth-child(2){animation-delay:.2s}.onboard-steps li:nth-child(3){animation-delay:.3s}.onboard-steps li:nth-child(4){animation-delay:.4s}.onboard-steps li:nth-child(5){animation-delay:.5s}
+.onboard-steps strong{display:block;font-size:14.5px;margin-bottom:2px}
+.onboard-steps p{margin:0;font-size:12.5px;line-height:1.55;color:#6b7f7f}
+.os-num{flex:none;width:32px;height:32px;border-radius:50%;display:grid;place-items:center;font-weight:700;font-size:13px;color:#147c70;background:#e9f4f1}
+.onboard-steps .os-highlight{border-color:#147c70;box-shadow:0 10px 26px #147c701f}
+.onboard-steps .os-highlight .os-num{background:#147c70;color:#fff}
+@keyframes os-in{to{opacity:1;transform:none}}
+@media (max-width:1100px){.onboard{grid-template-columns:1fr;padding:34px 30px;gap:28px}.onboard-intro h1{font-size:36px}}
+@media (max-width:600px){.onboard{padding:24px 18px;border-radius:16px}.onboard-intro h1{font-size:30px}.onboard-lead{font-size:14.5px}.onboard-cta{display:flex;justify-content:center}}
+@media (prefers-reduced-motion:reduce){.onboard,.onboard-steps li{animation:none;opacity:1;transform:none}}
+/* Walkthrough tracker */
+.wt-tracker{max-width:640px}
+.wt-tracker .v-step-list li span{background:#f2f6f5}
+.wt-foot{margin-top:18px}

@@ -13,7 +13,7 @@ ALLOWED_HOSTS = os.environ.get('DJANGO_ALLOWED_HOSTS', 'localhost,127.0.0.1').sp
 INSTALLED_APPS = ['django.contrib.admin', 'django.contrib.auth', 'django.contrib.contenttypes', 'django.contrib.sessions', 'django.contrib.messages', 'django.contrib.staticfiles', 'apps.accounts', 'apps.organizations', 'apps.clinical', 'apps.workflow', 'apps.dashboard', 'apps.validation']
 MIDDLEWARE = ['django.middleware.security.SecurityMiddleware', 'django.contrib.sessions.middleware.SessionMiddleware', 'django.middleware.common.CommonMiddleware', 'django.middleware.csrf.CsrfViewMiddleware', 'django.contrib.auth.middleware.AuthenticationMiddleware', 'django.contrib.messages.middleware.MessageMiddleware', 'apps.validation.middleware.ValidationMiddleware', 'django.middleware.clickjacking.XFrameOptionsMiddleware']
 ROOT_URLCONF = 'config.urls'
-TEMPLATES = [{'BACKEND': 'django.template.backends.django.DjangoTemplates', 'DIRS': [BASE_DIR / 'templates'], 'APP_DIRS': True, 'OPTIONS': {'context_processors': ['django.template.context_processors.request', 'django.contrib.auth.context_processors.auth', 'django.contrib.messages.context_processors.messages', 'apps.validation.context.workspace_validation']}}]
+TEMPLATES = [{'BACKEND': 'django.template.backends.django.DjangoTemplates', 'DIRS': [BASE_DIR / 'templates'], 'APP_DIRS': True, 'OPTIONS': {'context_processors': ['django.template.context_processors.request', 'django.contrib.auth.context_processors.auth', 'django.contrib.messages.context_processors.messages', 'apps.validation.context.workspace_validation', 'core.context.teleradiology']}}]
 WSGI_APPLICATION = 'config.wsgi.application'
 DATABASES = {'default': {'ENGINE': 'django.db.backends.mysql', 'NAME': os.environ.get('MYSQL_DATABASE', 'vanara_oncoscan'), 'USER': os.environ.get('MYSQL_USER', ''), 'PASSWORD': os.environ.get('MYSQL_PASSWORD', ''), 'HOST': os.environ.get('MYSQL_HOST', '127.0.0.1'), 'PORT': os.environ.get('MYSQL_PORT', '3306'), 'OPTIONS': {'charset': 'utf8mb4', 'init_command': "SET sql_mode='STRICT_TRANS_TABLES'"}}}
 AUTH_USER_MODEL = 'accounts.User'
@@ -29,6 +29,10 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 MEDIA_ROOT = BASE_DIR / 'media'
 MEDIA_URL = 'media/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+# Pilot workspaces: predefined second reads are signed automatically after a short delay
+# (seconds, min/max) so the teleradiology loop completes without a live radiologist.
+SIMULATED_TELERADIOLOGY = os.environ.get('SIMULATED_TELERADIOLOGY', '1') == '1'
+SIMULATED_TELERADIOLOGY_DELAY = (int(os.environ.get('SIMULATED_TR_MIN_SECONDS', '5')), int(os.environ.get('SIMULATED_TR_MAX_SECONDS', '10')))
 LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = 'dashboard'
 LOGOUT_REDIRECT_URL = 'login'
@@ -37,3 +41,11 @@ SESSION_COOKIE_SECURE = not DEBUG
 CSRF_COOKIE_SECURE = not DEBUG
 SECURE_CONTENT_TYPE_NOSNIFF = True
 X_FRAME_OPTIONS = 'DENY'
+
+# Private organisation access links (e.g. /access/<code>/ for iDICE reviewers).
+# Each link opens the landing page with a one-click "Enter as <label>" that
+# creates a fresh guest workspace per reviewer. Unset the code to switch it off.
+GUEST_ACCESS = {}
+if os.environ.get('IDICE_ACCESS_CODE'):
+    GUEST_ACCESS['idice'] = {'label': 'iDICE', 'code': os.environ['IDICE_ACCESS_CODE'], 'expires': os.environ.get('IDICE_ACCESS_EXPIRES', '')}
+GUEST_ACCESS_MAX_WORKSPACES = int(os.environ.get('GUEST_ACCESS_MAX_WORKSPACES', '300'))

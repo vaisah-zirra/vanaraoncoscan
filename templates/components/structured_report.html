@@ -1,0 +1,67 @@
+{% if report %}{% with b=report.birads %}
+<section class="panel sr-report{% if compact %} sr-compact{% endif %}" aria-labelledby="sr-title-{{ case.pk }}">
+<div class="sr-head"><div><p class="eyebrow">STRUCTURED ULTRASOUND REPORT · ACR BI-RADS® LEXICON</p><h2 id="sr-title-{{ case.pk }}">{% if compact %}Radiology interpretation{% else %}Clinical interpretation{% endif %}</h2></div><span class="sr-version">{{ report.version }}</span></div>
+
+<div class="sr-birads sr-cat-{{ b.category|lower }}">
+  <div class="sr-birads-tile"><small>BI-RADS</small><strong>{{ b.category }}</strong>{% if b.provisional %}<em>Provisional</em>{% endif %}</div>
+  <div class="sr-birads-copy"><strong>{{ b.name }}</strong>
+    <dl><div><dt>Likelihood of malignancy</dt><dd>{{ b.likelihood }}</dd></div><div><dt>Standard management</dt><dd>{{ b.management }}</dd></div></dl>
+  </div>
+</div>
+
+{% if display.has_score %}<div class="sr-confidence" role="img" aria-label="Model confidence {{ display.score }} percent; teleradiology threshold {{ report.threshold }} percent">
+  <div class="sr-confidence-label"><span>Model confidence <b>{{ display.score }}%</b></span><span>Teleradiology review below {{ report.threshold }}%</span></div>
+  <div class="sr-confidence-track"><span class="sr-confidence-fill{% if display.score < report.threshold %} low{% endif %}" style="width:{{ display.score }}%"></span><span class="sr-threshold" style="left:{{ report.threshold }}%"></span></div>
+  <p>{% if display.score < report.threshold %}Below threshold: the case was routed to a teleradiologist and no final category was issued automatically.{% else %}Above threshold: the AI report was issued for clinician confirmation; teleradiology review remains available on request.{% endif %}</p>
+</div>{% endif %}
+
+{% if not compact %}
+<h3 class="sr-h">Examination</h3>
+<dl class="sr-meta">
+  <div><dt>Study</dt><dd>Targeted breast ultrasound, single representative image</dd></div>
+  <div><dt>Clinical indication</dt><dd class="clinical-copy">{{ case.presenting_concern|default:'Not recorded for this case.'|linebreaksbr }}</dd></div>
+  <div><dt>Technique</dt><dd>{{ report.technique }}</dd></div>
+  <div><dt>Comparison</dt><dd>{{ report.comparison }}</dd></div>
+  <div><dt>Background echotexture</dt><dd>{{ report.composition }}</dd></div>
+</dl>
+
+<h3 class="sr-h">Findings</h3>
+{% for lesion in report.lesions %}
+<div class="sr-lesion">
+  <div class="sr-lesion-head"><strong>{{ lesion.label }} · {{ lesion.type }}</strong>
+    <span class="sr-tally"><span class="sr-chip benign">{{ lesion.counts.benign }} favour benign</span><span class="sr-chip suspicious">{{ lesion.counts.suspicious }} suspicious</span><span class="sr-chip neutral">{{ lesion.counts.neutral }} non-discriminating</span></span></div>
+  <p class="sr-location"><b>Location.</b> {{ lesion.location }}</p>
+  <div class="sr-table-wrap"><table class="sr-table"><thead><tr><th scope="col">Lexicon feature</th><th scope="col">Finding</th><th scope="col">Significance</th></tr></thead><tbody>
+  {% for d in lesion.descriptors %}<tr><th scope="row">{{ d.feature }}</th><td><strong>{{ d.finding }}</strong><small>{{ d.note }}</small></td><td><span class="sr-chip {{ d.signal }}">{{ d.signal_label }}</span></td></tr>{% endfor %}
+  </tbody></table></div>
+</div>
+{% empty %}
+<ul class="sr-list">{% for item in report.normal_findings %}<li>{{ item }}</li>{% endfor %}</ul>
+{% endfor %}
+
+{% if report.morphometric_rows %}
+<h3 class="sr-h">Quantitative lesion analysis <small>from segmentation outline</small></h3>
+<div class="sr-table-wrap"><table class="sr-table sr-metrics"><tbody>{% for label, value, note in report.morphometric_rows %}<tr><th scope="row">{{ label }}</th><td class="sr-num">{{ value }}</td><td><small>{{ note }}</small></td></tr>{% endfor %}</tbody></table></div>
+{% endif %}
+{% endif %}
+
+<h3 class="sr-h">Impression</h3>
+<ol class="sr-ol">{% for line in report.impression %}<li>{{ line }}</li>{% endfor %}</ol>
+
+<h3 class="sr-h">Recommendations</h3>
+<ol class="sr-ol">{% for line in report.recommendations %}<li>{{ line }}</li>{% endfor %}</ol>
+
+{% if not compact %}
+{% if report.differential %}
+<h3 class="sr-h">Differential diagnosis</h3>
+<div class="sr-table-wrap"><table class="sr-table"><thead><tr><th scope="col">Diagnosis</th><th scope="col">Likelihood</th><th scope="col">Supporting features</th></tr></thead><tbody>{% for dx, rank, why in report.differential %}<tr><th scope="row">{{ dx }}</th><td><span class="sr-rank">{{ rank }}</span></td><td><small>{{ why }}</small></td></tr>{% endfor %}</tbody></table></div>
+{% endif %}
+
+<h3 class="sr-h">How the AI reached this result</h3>
+<p class="sr-reasoning">{{ report.reasoning }}</p>
+
+<details class="sr-patient"><summary>Patient-friendly explanation</summary><p>{{ report.patient_summary }}</p><p class="helper">Plain-language wording for clinicians to adapt when explaining the result. It is not a substitute for a consultation.</p></details>
+{% endif %}
+<p class="sr-foot">AI-generated report for clinician review and confirmation · {{ report.model }}. Lesion metrics are computed from the segmentation outline; sizes are in pixels because the source image carries no pixel-spacing calibration.</p>
+</section>
+{% endwith %}{% endif %}

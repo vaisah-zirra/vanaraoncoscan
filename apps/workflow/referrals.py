@@ -62,7 +62,7 @@ def update_referral(*, user, referral_id, data):
 @require_GET
 def referral_list(request):
     all_items = scoped_referrals(request.user)
-    counts = all_items.aggregate(open=Count('pk',filter=~Q(status__in=['COMPLETED','CANCELLED'])),pending=Count('pk',filter=Q(status='PENDING')),scheduled=Count('pk',filter=Q(status='SCHEDULED')),completed=Count('pk',filter=Q(status='COMPLETED')))
+    counts = all_items.aggregate(open=Count('pk',filter=~Q(status__in=['COMPLETED','CANCELLED'])),pending=Count('pk',filter=Q(status='PENDING')),accepted=Count('pk',filter=Q(status='ACCEPTED')),scheduled=Count('pk',filter=Q(status='SCHEDULED')),completed=Count('pk',filter=Q(status='COMPLETED')),cancelled=Count('pk',filter=Q(status='CANCELLED')),all=Count('pk'),urgent=Count('pk',filter=Q(urgency__in=['URGENT','PRIORITY'])&~Q(status__in=['COMPLETED','CANCELLED'])))
     q=request.GET.get('q','').strip()[:120];status=request.GET.get('status','open');urgency=request.GET.get('urgency','')
     items=all_items
     if status == 'open': items=items.exclude(status__in=['COMPLETED','CANCELLED'])
@@ -73,7 +73,17 @@ def referral_list(request):
     if q: items=items.filter(Q(case__patient__display_name__icontains=q)|Q(case__patient__reference__icontains=q)|Q(destination__icontains=q)|Q(reason__icontains=q))
     page=Paginator(items.order_by('-confirmed_at','-pk'),10).get_page(request.GET.get('page'))
     params=request.GET.copy();params.pop('page',None)
-    return render(request,'referrals.html',{'page':page,'counts':counts,'q':q,'status':status,'urgency':urgency,'stages':Referral.Status.choices,'querystring':params.urlencode()})
+    today=timezone.localdate()
+    for item in page:
+        name=[w for w in item.case.patient.display_name.split() if w[:1].isalpha()]
+        item.initials=((name[0][0]+(name[-1][0] if len(name)>1 else '')) if name else '?').upper()
+        item.days_open=(today-timezone.localtime(item.confirmed_at).date()).days
+        item.appt_in=(item.appointment_date-today).days if item.appointment_date else None
+    tabs=[('open','Open',counts['open']),('PENDING','Awaiting acknowledgement',counts['pending']),('ACCEPTED','Accepted',counts['accepted']),('SCHEDULED','Scheduled',counts['scheduled']),('COMPLETED','Completed',counts['completed']),('CANCELLED','Cancelled',counts['cancelled']),('all','All',counts['all'])]
+    tab_qs={'q':q,'urgency':urgency}
+    from urllib.parse import urlencode
+    tab_qs=urlencode({k:v for k,v in tab_qs.items() if v})
+    return render(request,'referrals.html',{'page':page,'counts':counts,'q':q,'status':status,'urgency':urgency,'stages':Referral.Status.choices,'querystring':params.urlencode(),'tabs':tabs,'tab_qs':tab_qs})
 
 @login_required
 @require_http_methods(['GET','POST'])
@@ -88,4 +98,13 @@ def referral_detail(request,pk):
         else:
             messages.success(request,'Referral updated. The case timeline and report reflect this record.')
             return redirect('referral-detail',pk=pk)
-    return render(request,'referral_detail.html',{'item':item,'form':form,'closed':item.status in ['COMPLETED','CANCELLED'],'updates':item.updates.select_related('actor').order_by('-created_at','-pk')})
+    order=['PENDING','ACCEPTED','SCHEDULED','COMPLETED']
+    reached=order.index(item.status) if item.status in order else -1
+    if item.status=='CANCELLED':
+        seen={u.status for u in item.updates.all()}
+        reached=max([order.index(x) for x in seen if x in order]+[0])
+    labels={'PENDING':'Referred','ACCEPTED':'Accepted','SCHEDULED':'Appointment','COMPLETED':'Completed'}
+    steps=[{'label':labels[k],'state':('done' if i<reached or (i==reached and item.status=='COMPLETED') else 'current' if i==reached and item.status!='CANCELLED' else 'done' if i==reached else 'todo')} for i,k in enumerate(order)]
+    name=[w for w in item.case.patient.display_name.split() if w[:1].isalpha()]
+    initials=((name[0][0]+(name[-1][0] if len(name)>1 else '')) if name else '?').upper()
+    return render(request,'referral_detail.html',{'item':item,'form':form,'closed':item.status in ['COMPLETED','CANCELLED'],'updates':item.updates.select_related('actor').order_by('-created_at','-pk'),'steps':steps,'initials':initials,'days_open':(timezone.localdate()-timezone.localtime(item.confirmed_at).date()).days})

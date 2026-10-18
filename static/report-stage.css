@@ -1,0 +1,64 @@
+/* Final journey stage: confirmed care plan + case report */
+.rs-hero{display:flex;justify-content:space-between;align-items:center;gap:28px;flex-wrap:wrap;margin:8px 0 24px;padding:30px 32px;border-radius:20px;background:linear-gradient(135deg,#123a37 0%,#17564f 60%,#1d6a5f 100%);color:#fff;box-shadow:0 20px 50px #0d302926;position:relative;overflow:hidden}
+.rs-hero::after{content:"";position:absolute;right:-80px;top:-80px;width:260px;height:260px;border-radius:50%;background:radial-gradient(circle,#4fc49733,transparent 70%);pointer-events:none}
+.rs-hero-main{display:flex;gap:18px;align-items:flex-start;min-width:0;flex:1 1 380px}
+.rs-hero .eyebrow{color:#9fe0c9;margin:0 0 6px}
+.rs-hero h1{font-size:clamp(22px,3vw,30px);letter-spacing:-.6px;line-height:1.2;margin:0;color:#fff}
+.rs-sub{margin:8px 0 0;font-size:13px;color:#cfe5df}
+.rs-seal{flex-shrink:0;width:52px;height:52px;border-radius:50%;background:#4fc497;color:#0d3029;display:grid;place-items:center;box-shadow:0 0 0 7px #4fc49733;animation:rs-pop .6s cubic-bezier(.2,1.4,.4,1) both}
+.rs-seal svg{width:28px;height:28px}
+.rs-specialist .rs-seal{background:#f0c069;box-shadow:0 0 0 7px #f0c06933}
+@keyframes rs-pop{from{transform:scale(.4);opacity:0}to{transform:scale(1);opacity:1}}
+.rs-download{display:flex;flex-direction:column;align-items:flex-end;gap:8px;position:relative;z-index:1;max-width:320px}
+.rs-download-btn{display:inline-flex!important;align-items:center;gap:12px;padding:15px 24px!important;font-size:16px!important;border-radius:14px!important;background:#fff!important;color:#123a37!important;border-color:#fff!important;box-shadow:0 10px 26px #0006;transition:transform .15s ease,box-shadow .15s ease}
+.rs-download-btn:hover{transform:translateY(-2px);box-shadow:0 14px 30px #0007}
+.rs-download-btn svg{width:22px;height:22px}
+.rs-download-btn small{font-size:10px;font-weight:700;letter-spacing:1px;background:#e9f4f1;color:#147c70;border-radius:6px;padding:2px 6px;margin-left:4px;vertical-align:2px}
+.rs-download-state{margin:0;font-size:12px;color:#cfe5df;text-align:right;line-height:1.5}
+.rs-download.is-done .rs-download-state{color:#9fe0c9;font-weight:600}
+.rs-grid{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:24px;align-items:start}
+.rs-grid>*{min-width:0}
+.rs-summary,.rs-contents,.rs-next{margin:0!important}
+.rs-side{display:grid;gap:24px}
+.rs-facts{display:grid;gap:0;margin:6px 0 0}
+.rs-facts dt,.rs-facts dd{margin:0!important;align-self:start}
+.rs-facts>div{display:grid;grid-template-columns:140px 1fr;gap:16px;padding:13px 0;border-top:1px solid var(--line)}
+.rs-facts>div:first-child{border-top:0}
+.rs-facts dt{font-size:11px;letter-spacing:1px;text-transform:uppercase;color:#6b7f7f;padding-top:2px}
+.rs-facts dd{margin:0;font-size:14px;font-weight:550;color:#183d3d}
+.rs-facts dd small{display:block;font-weight:400;font-size:12px;color:#738586;margin-top:3px;line-height:1.5}
+.rs-plan-chip{display:inline-block;font-size:12px;font-weight:700;border-radius:20px;padding:4px 11px;background:#e6f3ec;color:#19765b}
+.rs-referral-confirmed{background:#fbe9e2;color:#a5431d}
+.rs-follow-up-scheduled{background:#e7f0fb;color:#2a5f9e}
+.rs-specialist-review-requested{background:#fdf3e2;color:#9a650d}
+.rs-notes{margin:16px 0 0;padding:14px 16px;border-radius:11px;background:#f7faf9;border:1px solid var(--line);font-size:13px;line-height:1.7;color:#2b4f4e}
+.rs-checklist{list-style:none;margin:10px 0 0;padding:0;display:grid;gap:10px}
+.rs-checklist li{position:relative;padding-left:28px;font-size:13px;color:#2b4f4e;line-height:1.5}
+.rs-checklist li::before{content:"✓";position:absolute;left:0;top:0;width:19px;height:19px;border-radius:50%;background:#e6f3ec;color:#19765b;font-size:11px;font-weight:800;display:grid;place-items:center}
+.rs-next{display:grid;gap:10px}
+.rs-next .eyebrow{margin-bottom:2px}
+.rs-next-link{display:flex;flex-direction:column;gap:2px;padding:12px 14px;border:1px solid var(--line);border-radius:12px;text-decoration:none;color:#183d3d;transition:border-color .15s,background .15s,transform .15s}
+.rs-next-link:hover{border-color:#147c70;background:#f3faf8;transform:translateX(2px)}
+.rs-next-link strong{font-size:14px}
+.rs-next-link strong::after{content:" →";color:#147c70}
+.rs-next-link span{font-size:12px;color:#738586}
+.rs-next-primary{background:#147c70;border-color:#147c70;color:#fff}
+.rs-next-primary strong::after{color:#fff}
+.rs-next-primary span{color:#d4ece6}
+.rs-next-primary:hover{background:#106a60;border-color:#106a60}
+@media (max-width:860px){.rs-grid{grid-template-columns:1fr}.rs-download{align-items:stretch;max-width:none;width:100%}.rs-download-state{text-align:left}.rs-download-btn{justify-content:center}}
+@media (max-width:560px){.rs-hero{padding:22px 18px}.rs-facts>div{grid-template-columns:1fr;gap:4px}.rs-seal{width:42px;height:42px}}
+@media (prefers-reduced-motion:reduce){.rs-seal{animation:none}.rs-download-btn,.rs-next-link{transition:none}}
+
+/* Report call-to-action shown at the top of case pages once a care plan exists */
+.rs-banner{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;margin:0 0 20px;padding:16px 20px;border-radius:14px;background:#e9f4f1;border:1px solid #c9e4dc}
+.rs-banner strong{display:block;font-size:15px;color:#123a37}
+.rs-banner span{font-size:12.5px;color:#506868}
+.rs-banner-actions{display:flex;gap:10px;flex-wrap:wrap}
+.rs-feedback{text-align:center}
+.rs-feedback[open]{animation:rs-rise .45s cubic-bezier(.2,1.2,.4,1) both}
+.rs-feedback::backdrop{background:#0d302966;backdrop-filter:blur(3px)}
+.rs-feedback-seal{width:48px;height:48px;margin:0 auto 10px;border-radius:50%;background:#4fc497;color:#0d3029;display:grid;place-items:center;box-shadow:0 0 0 7px #4fc49733}
+.rs-feedback-seal svg{width:26px;height:26px}
+@keyframes rs-rise{from{opacity:0;transform:translateY(18px) scale(.97)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.rs-feedback[open]{animation:none}}

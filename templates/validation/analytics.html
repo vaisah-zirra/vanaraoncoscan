@@ -1,1 +1,149 @@
-{% extends 'base.html' %}{% block title %}Validation analytics{% endblock %}{% block content %}<div class="page-heading"><div><p class="eyebrow">INTEREST → EXPERIENCE → NEXT STEP</p><h1>Validation, in view.</h1><p class="subtitle">Behavioural signals from your landing page and MVP. Owner access only.</p></div><a class="v-button" href="{% url 'pilot-interest' %}">View interest form ↗</a></div><form class="v-panel v-filters" method="get"><div><label for="days">Registration / enquiry period</label><select name="days" id="days"><option value="7" {% if days == '7' %}selected{% endif %}>Last 7 days</option><option value="30" {% if days == '30' %}selected{% endif %}>Last 30 days</option><option value="90" {% if days == '90' %}selected{% endif %}>Last 90 days</option><option value="all" {% if days == 'all' %}selected{% endif %}>All time</option></select></div><div><label for="source">Campaign source</label><select name="source" id="source"><option value="">All sources</option>{% for value in sources %}<option {% if source == value %}selected{% endif %}>{{ value }}</option>{% endfor %}</select></div><div><label for="role">Self-reported role</label><select name="role" id="role"><option value="">All roles</option>{% for value,label in roles %}<option value="{{ value }}" {% if role == value %}selected{% endif %}>{{ label }}</option>{% endfor %}</select></div><button class="v-button">Apply filters</button></form><div class="v-metric-grid"><article class="v-metric"><span>Landing visits</span><strong>{{ stats.landing }}</strong><small>{{ stats.visits }} site sessions · {{ stats.returners }} returning accounts</small></article><article class="v-metric"><span>Registrations</span><strong>{{ stats.registrations }}</strong><small>{{ stats.started }} participants started a case</small></article><article class="v-metric"><span>Completed rounds</span><strong>{{ stats.completed }}<small> / {{ stats.rounds }}</small></strong><small>{{ stats.completion_rate }}% of rounds · {{ stats.finishers }} participants</small></article><article class="v-metric"><span>Usefulness rating</span><strong>{{ stats.rating|floatformat:1|default:'—' }}<small> / 5</small></strong><small>{{ stats.feedback }} feedback responses</small></article></div><div class="v-intent-strip"><div><strong>{{ stats.demos }}</strong><span>Demo requests</span></div><div><strong>{{ stats.pilots }}</strong><span>Pilot / waitlist requests</span></div><div><strong>{{ stats.commercial }}</strong><span>Pricing / deployment requests</span></div><div><strong>{{ stats.leads }}</strong><span>All enquiries</span></div></div><p class="v-muted v-small">Visits are approximate sessions with a 30-minute inactivity boundary; role filters do not apply to anonymous visits. Completion follows the selected registration cohort, including later activity. Requests are enquiries, not unique people or confirmed commitments. Staff visits are excluded.</p><div class="v-round-grid"><section class="v-panel"><span class="v-eyebrow">WHERE PEOPLE PAUSE</span><h2>Next unfinished step</h2>{% for label,count in dropoffs %}<div class="v-data-row"><span>{{ label }}</span><b>{{ count }}</b></div>{% empty %}<p class="v-muted">No unfinished rounds in this cohort.</p>{% endfor %}<p class="v-small v-muted">A pause is not necessarily abandonment. Quality-failure rounds follow a shorter path.</p></section><section class="v-panel"><span class="v-eyebrow">DISCOVERY</span><h2>Sessions by source</h2>{% for item in source_rows %}<div class="v-data-row"><span>{{ item.source }}</span><b>{{ item.n }}</b></div>{% empty %}<p class="v-muted">No sessions recorded.</p>{% endfor %}<p class="v-small v-muted">Campaign links: add <code>?utm_source=instagram&amp;utm_campaign=mvp</code> or <code>?utm_source=whatsapp&amp;utm_campaign=outreach</code> to your landing-page address.</p></section></div><section class="v-panel"><div class="v-panel-top"><div><span class="v-eyebrow">PEOPLE & NEXT STEPS</span><h2>Interest inbox</h2></div><span class="v-muted">{{ page.paginator.count }} enquiries</span></div><form class="v-filters" method="get"><input type="hidden" name="days" value="{{ days }}"><input type="hidden" name="source" value="{{ source }}"><input type="hidden" name="role" value="{{ role }}"><div><label for="q">Search name, email or organisation</label><input type="search" name="q" id="q" value="{{ q }}" placeholder="Find an enquiry…"></div><div><label for="stage">Stage</label><select name="stage" id="stage"><option value="">All stages</option>{% for value,label in stages %}<option value="{{ value }}" {% if stage == value %}selected{% endif %}>{{ label }}</option>{% endfor %}</select></div><button class="v-button">Search</button></form><div class="v-table-wrap"><table><thead><tr><th>Contact</th><th>Interest</th><th>Source</th><th>Stage</th><th>Next action</th></tr></thead><tbody>{% for lead in leads %}<tr><td><a href="{% url 'validation-lead' lead.pk %}"><b>{{ lead.name }}</b></a><small>{{ lead.organisation }} · {{ lead.get_role_display|default:'Role not supplied' }}</small></td><td>{{ lead.interest }}</td><td>{{ lead.source }}<small>{{ lead.campaign }}</small></td><td>{{ lead.get_stage_display }}</td><td>{{ lead.next_action|default:'Not set' }}<small>{{ lead.next_action_date|date:'d M Y' }}</small></td></tr>{% empty %}<tr><td colspan="5">No matching enquiries yet.</td></tr>{% endfor %}</tbody></table></div>{% include 'validation/pagination.html' %}</section>{% include 'validation/participants.html' %}<section class="v-panel"><span class="v-eyebrow">ACTUAL WORKFLOW ACTIVITY</span><h2>Recent rounds</h2><div class="v-table-wrap"><table><thead><tr><th>Participant</th><th>Organisation / role</th><th>Case</th><th>Progress</th><th>Next step</th></tr></thead><tbody>{% for item in recent_rounds %}<tr><td>{{ item.round.participant.user.get_full_name }}<small>{{ item.round.participant.user.email }}</small></td><td>{{ item.round.participant.organisation }}<small>{{ item.round.participant.get_role_display }}</small></td><td>{{ item.round.case.pk|stringformat:'s'|slice:':8' }}<small>{% if item.failed_quality %}Quality path{% else %}Assessment path{% endif %}</small></td><td>{{ item.percent }}%<progress value="{{ item.percent }}" max="100" aria-label="Round completion"></progress></td><td>{% if item.complete %}Completed{% else %}{{ item.next_label }}{% endif %}</td></tr>{% empty %}<tr><td colspan="5">Walkthrough activity will appear when a registered participant starts a case.</td></tr>{% endfor %}</tbody></table></div><p class="v-small v-muted">Showing up to 20 recent rounds.</p></section><div class="v-round-grid"><section class="v-panel"><span class="v-eyebrow">ADOPTION QUESTIONS</span><h2>Adoption factors</h2><p class="v-small v-muted">Responses mentioning each factor. Participants can select up to three, so totals may exceed the number of responses.</p>{% for item in barriers %}<div class="v-data-row"><span>{{ item.barrier }}</span><b>{{ item.n }}</b></div>{% empty %}<p>No feedback yet.</p>{% endfor %}</section><section class="v-panel"><span class="v-eyebrow">IN THEIR WORDS</span><h2>Recent feedback</h2>{% for item in recent_feedback %}<article class="v-feedback-snippet"><b>{{ item.rating }}/5 · {{ item.round.participant.user.get_full_name }}</b><p>{{ item.suggestion|default:'No written suggestion.' }}</p><small>{{ item.get_intent_display }} · {{ item.completion_at_submission }}% complete when submitted</small></article>{% empty %}<p>Participant feedback will appear here.</p>{% endfor %}</section></div>{% endblock %}
+{% extends 'base.html' %}{% load static %}{% block title %}Validation analytics{% endblock %}{% block breadcrumb %}Validation analytics{% endblock %}{% block content %}
+<link rel="stylesheet" href="{% static 'insights.css' %}?v=3"><script defer src="{% static 'insights.js' %}?v=2"></script>
+<div class="vd">
+
+<header class="vd-head">
+  <div>
+    <p class="vd-hello">Hi {{ greeting_name }},</p>
+    <h1>Welcome back <span aria-hidden="true">👋</span></h1>
+    <p class="vd-sub">Here’s how VanaraOncoScan is being received · <strong>{{ period }}</strong>{% if source %} · source <strong>{{ source }}</strong>{% endif %}</p>
+  </div>
+  <div class="vd-controls">
+    <nav class="vd-period" aria-label="Period">{% for p in periods %}<a href="?{{ p.qs }}&tab={{ tab }}"{% if p.active %} class="on" aria-current="true"{% endif %}>{{ p.label }}</a>{% endfor %}</nav>
+    <form method="get" class="vd-source" data-autosubmit><input type="hidden" name="days" value="{{ days }}"><input type="hidden" name="role" value="{{ role }}"><input type="hidden" name="tab" value="{{ tab }}">
+      <label class="sr-only" for="vd-source">Source</label>
+      <select id="vd-source" name="source"><option value="">All sources</option>{% for value in sources %}<option value="{{ value }}" {% if source == value %}selected{% endif %}>{{ value }}</option>{% endfor %}</select>
+    </form>
+    <details class="vd-export"><summary>Export <span aria-hidden="true">↓</span></summary>
+      <form method="get" class="vd-export-menu"><input type="hidden" name="days" value="{{ days }}"><input type="hidden" name="source" value="{{ source }}"><input type="hidden" name="role" value="{{ role }}">
+        <p class="vd-export-title">Download as PDF</p>
+        <label><input type="radio" name="identity" value="anonymised" checked> Anonymised <small>safe to share</small></label>
+        <label><input type="radio" name="identity" value="named"> With contact details <small>internal</small></label>
+        <button formaction="{% url 'validation-export' 'full' %}">Full validation report</button>
+        <button formaction="{% url 'validation-export' 'participants' %}">Participants</button>
+        <button formaction="{% url 'validation-export' 'feedback' %}">Survey &amp; feedback</button>
+        <button formaction="{% url 'validation-export' 'interest' %}">Interest</button>
+      </form>
+    </details>
+  </div>
+</header>
+
+<section class="vd-kpis" aria-label="Key numbers">{% for k in kpis %}
+  <a class="vd-kpi tone-{{ k.tone }}" href="{% if k.key == 'visits' %}#trend{% else %}?days={{ days }}&source={{ source }}&role={{ role }}&tab={{ k.key }}#people{% endif %}">
+    <div class="vd-kpi-top"><span class="vd-icon" aria-hidden="true">{% if k.icon == 'eye' %}<svg viewBox="0 0 24 24"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>{% elif k.icon == 'user' %}<svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/></svg>{% elif k.icon == 'check' %}<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l3 3 5-6"/></svg>{% elif k.icon == 'flag' %}<svg viewBox="0 0 24 24"><path d="M5 21V4M5 4h11l-2 4 2 4H5"/></svg>{% else %}<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>{% endif %}</span>
+      <span class="vd-delta{% if k.week %} up{% endif %}">{% if k.week %}↑ {{ k.week }}{% else %}–{% endif %}<small>this week</small></span></div>
+    <p class="vd-kpi-label">{{ k.label }}</p>
+    <strong class="vd-kpi-value">{{ k.value }}</strong>
+  </a>{% endfor %}
+</section>
+
+<div class="vd-grid vd-grid-main">
+  <section class="vd-card" id="trend">
+    <div class="vd-card-head"><div><h2>Visits, registrations &amp; completions</h2><p>{{ period }} · hover a point for the exact number</p></div>
+      <ul class="vd-legend">{% for line in trend.lines %}<li><i style="background:{{ line.color }}"></i>{{ line.name }} <b>{{ line.total }}</b></li>{% endfor %}</ul></div>
+    <svg class="vd-trend" viewBox="0 0 {{ trend.width }} {{ trend.height }}" role="img" aria-label="Landing visits, registrations and completed walkthroughs over time">
+      <defs>{% for line in trend.lines %}<linearGradient id="g{{ forloop.counter }}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="{{ line.color }}" stop-opacity="{% if forloop.first %}.22{% else %}.08{% endif %}"/><stop offset="1" stop-color="{{ line.color }}" stop-opacity="0"/></linearGradient>{% endfor %}</defs>
+      {% for g in trend.grid %}<line x1="{{ trend.left }}" x2="{{ trend.right }}" y1="{{ g.y }}" y2="{{ g.y }}" class="vd-gridline"/><text x="{{ trend.left|add:'-8' }}" y="{{ g.y }}" class="vd-axis" text-anchor="end" dy="3">{{ g.label }}</text>{% endfor %}
+      {% for t in trend.ticks %}<text x="{{ t.x }}" y="{{ trend.height|add:'-8' }}" class="vd-axis" text-anchor="middle">{{ t.label }}</text>{% endfor %}
+      {% for line in trend.lines %}<path d="{{ line.area }}" fill="url(#g{{ forloop.counter }})"/>{% endfor %}
+      {% for line in trend.lines %}<path d="{{ line.path }}" fill="none" stroke="{{ line.color }}" stroke-width="{% if forloop.first %}2.6{% else %}2{% endif %}" stroke-linecap="round"/>
+        {% for dot in line.dots %}{% if dot.v %}<circle cx="{{ dot.x }}" cy="{{ dot.y }}" r="3.2" fill="#fff" stroke="{{ line.color }}" stroke-width="2"><title>{{ dot.tip }}</title></circle>{% endif %}{% endfor %}{% endfor %}
+    </svg>
+  </section>
+
+  <section class="vd-card vd-status">
+    <div class="vd-card-head"><div><h2>Walkthrough status</h2><p>Registered users</p></div></div>
+    <div class="vd-donut-wrap">
+      <svg class="vd-donut" viewBox="0 0 {{ status_donut.size }} {{ status_donut.size }}" role="img" aria-label="{{ completion_rate }}% of registered users completed the walkthrough">
+        <circle cx="{{ status_donut.c }}" cy="{{ status_donut.c }}" r="{{ status_donut.r }}" fill="none" stroke="#eef3f1" stroke-width="{{ status_donut.stroke }}"/>
+        {% for part in status_donut.parts %}{% if part.n %}<circle cx="{{ status_donut.c }}" cy="{{ status_donut.c }}" r="{{ status_donut.r }}" fill="none" stroke="{{ part.color }}" stroke-width="{{ status_donut.stroke }}" stroke-dasharray="{{ part.dash }}" stroke-dashoffset="{{ part.offset }}" transform="rotate(-90 {{ status_donut.c }} {{ status_donut.c }})"><title>{{ part.label }}: {{ part.n }}</title></circle>{% endif %}{% endfor %}
+        <text x="50%" y="47%" text-anchor="middle" class="vd-donut-value">{{ completion_rate }}%</text>
+        <text x="50%" y="61%" text-anchor="middle" class="vd-donut-label">completed</text>
+      </svg>
+      <ul class="vd-donut-legend">{% for part in status_donut.parts %}<li><i style="background:{{ part.color }}"></i><span>{{ part.label }}</span><b>{{ part.n }}</b></li>{% endfor %}</ul>
+    </div>
+  </section>
+</div>
+
+<div class="vd-grid vd-grid-three">
+  <section class="vd-card">
+    <div class="vd-card-head"><div><h2>Journey funnel</h2><p>From first visit to pilot interest</p></div></div>
+    <ol class="vd-funnel">{% for step in funnel %}<li><div class="vd-funnel-row"><span>{{ step.label }}</span><b>{{ step.n }}</b></div><div class="vd-track"><i style="width:{{ step.w }}%"></i></div></li>{% endfor %}</ol>
+  </section>
+  <section class="vd-card">
+    <div class="vd-card-head"><div><h2>How participants rated it</h2><p>{{ rating.n }} survey response{{ rating.n|pluralize }}</p></div></div>
+    {% if rating.n %}<div class="vd-rating">
+      <div class="vd-rating-score"><strong>{{ rating.average }}</strong><span>/ 5</span><div class="vd-stars" aria-label="{{ rating.average }} out of 5">{% for s in '12345' %}<i class="{% if forloop.counter <= rating.stars_full %}on{% endif %}">★</i>{% endfor %}</div><p>{{ rating.top2 }}% rated 4 or 5</p></div>
+      <ul class="vd-dist">{% for d in rating.dist %}<li><span>{{ d.star }}★</span><div class="vd-track gold"><i style="width:{{ d.w }}%"></i></div><b>{{ d.n }}</b></li>{% endfor %}</ul>
+    </div>{% else %}<p class="vd-empty-note">Ratings appear here after participants finish a walkthrough.</p>{% endif %}
+  </section>
+  <section class="vd-card">
+    <div class="vd-card-head"><div><h2>Where visitors come from</h2><p>Landing page visits by source</p></div></div>
+    {% if visit_sources %}<ul class="vd-bars">{% for b in visit_sources %}<li><div class="vd-funnel-row"><span>{{ b.label }}</span><b>{{ b.n }} <small>{{ b.pct }}%</small></b></div><div class="vd-track"><i style="width:{{ b.w }}%;background:{{ b.color }}"></i></div></li>{% endfor %}</ul>
+    {% else %}<p class="vd-empty-note">No landing visits in this period yet.</p>{% endif %}
+  </section>
+</div>
+
+<div class="vd-grid vd-grid-three">
+  <section class="vd-card">
+    <div class="vd-card-head"><div><h2>Most useful part</h2><p>What participants valued most</p></div></div>
+    {% if useful %}<ul class="vd-bars">{% for b in useful %}<li><div class="vd-funnel-row"><span>{{ b.label }}</span><b>{{ b.n }}</b></div><div class="vd-track"><i style="width:{{ b.w }}%;background:{{ b.color }}"></i></div></li>{% endfor %}</ul>
+    {% else %}<p class="vd-empty-note">No survey responses yet.</p>{% endif %}
+  </section>
+  <section class="vd-card">
+    <div class="vd-card-head"><div><h2>What would drive adoption</h2><p>Top factors chosen (up to three each)</p></div></div>
+    {% if factors %}<ul class="vd-bars">{% for b in factors %}<li><div class="vd-funnel-row"><span>{{ b.label }}</span><b>{{ b.n }}</b></div><div class="vd-track"><i style="width:{{ b.w }}%;background:{{ b.color }}"></i></div></li>{% endfor %}</ul>
+    {% else %}<p class="vd-empty-note">No survey responses yet.</p>{% endif %}
+  </section>
+  <section class="vd-card">
+    <div class="vd-card-head"><div><h2>In their words</h2><p>Latest written feedback</p></div></div>
+    {% for q in quotes %}<blockquote class="vd-quote" data-clamp><p class="vd-quote-text">“{{ q.text|linebreaksbr }}”</p><button type="button" class="vd-more" hidden aria-expanded="false">Read more</button><footer><span class="vd-avatar sm">{{ q.initials }}</span><span><b>{{ q.name }}</b>{% if q.org %} · {{ q.org }}{% endif %}</span><em>{{ q.rating }}★</em></footer></blockquote>
+    {% empty %}<p class="vd-empty-note">Written feedback will appear here.</p>{% endfor %}
+  </section>
+</div>
+
+<section class="vd-card vd-people" id="people">
+  <div class="vd-card-head vd-people-head">
+    <div><h2>People</h2><p>Everyone who signed up, finished the walkthrough or asked for a next step</p></div>
+    <label class="vd-search"><span class="sr-only">Search people</span><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg><input type="search" placeholder="Search name, email or organisation…" data-people-search></label>
+  </div>
+  <div class="vd-tabs" role="tablist">{% for t in tabs %}<button type="button" role="tab" id="tab-{{ t.key }}" aria-controls="panel-{{ t.key }}" aria-selected="{% if t.key == tab %}true{% else %}false{% endif %}" data-tab="{{ t.key }}">{{ t.label }} <span>{{ t.rows|length }}</span></button>{% endfor %}</div>
+
+  {% for t in tabs %}<div class="vd-panel" role="tabpanel" id="panel-{{ t.key }}" aria-labelledby="tab-{{ t.key }}"{% if t.key != tab %} hidden{% endif %}>
+    {% if t.rows %}<div class="vd-table-wrap"><table class="vd-table">
+      {% if t.kind == 'lead' %}<thead><tr><th>Name</th><th>Organisation</th><th>Contact</th><th>Interest</th><th>Stage</th><th>Received</th><th>Message</th></tr></thead><tbody>
+        {% for r in t.rows %}<tr data-search="{{ r.name|lower }} {{ r.email|lower }} {{ r.organisation|lower }}">
+          <td><a class="vd-person" href="{% url 'validation-lead' r.pk %}"><span class="vd-avatar">{{ r.initials }}</span><span><b>{{ r.name }}</b><small>{{ r.email }}</small></span></a></td>
+          <td>{{ r.organisation|default:'—' }}<small>{{ r.role }}</small></td>
+          <td class="vd-contact">{% if r.whatsapp %}<a href="https://wa.me/{{ r.whatsapp|cut:'+'|cut:' '|cut:'-'|cut:'('|cut:')' }}" target="_blank" rel="noopener">WhatsApp {{ r.whatsapp }}</a>{% endif %}<a href="mailto:{{ r.email }}">Email</a></td>
+          <td><span class="vd-chip">{{ r.interest }}</span>{% if r.tried %}<small class="vd-tried">Used the workspace</small>{% endif %}</td>
+          <td><span class="vd-stage s-{{ r.stage_key }}">{{ r.stage }}</span>{% if r.next_action %}<small>{{ r.next_action }}</small>{% endif %}</td>
+          <td>{{ r.date|date:'d M Y' }}<small>{{ r.source }}</small></td>
+          <td class="vd-msg">{{ r.message|default:'—'|linebreaksbr }}</td>
+        </tr>{% endfor %}</tbody>
+      {% elif t.kind == 'registered' %}<thead><tr><th>Name</th><th>Organisation</th><th>Contact</th><th>Joined</th><th>Progress</th><th>Rating</th><th>Last seen</th></tr></thead><tbody>
+        {% for r in t.rows %}<tr data-search="{{ r.name|lower }} {{ r.email|lower }} {{ r.organisation|lower }}">
+          <td><span class="vd-person"><span class="vd-avatar">{{ r.initials }}</span><span><b>{{ r.name }}</b><small>{{ r.email|default:r.source }}</small></span></span></td>
+          <td>{{ r.organisation|default:'—' }}<small>{{ r.role }}</small></td>
+          <td class="vd-contact">{% if r.whatsapp %}<a href="https://wa.me/{{ r.whatsapp|cut:'+'|cut:' '|cut:'-'|cut:'('|cut:')' }}" target="_blank" rel="noopener">WhatsApp {{ r.whatsapp }}</a>{% endif %}{% if r.email %}<a href="mailto:{{ r.email }}">Email</a>{% endif %}{% if not r.whatsapp and not r.email %}<small>{{ r.source }} access</small>{% endif %}</td>
+          <td>{{ r.joined|date:'d M Y' }}<small>via {{ r.source }}</small></td>
+          <td><div class="vd-progress"><div class="vd-track"><i style="width:{{ r.best }}%"></i></div><b>{{ r.best }}%</b></div><span class="vd-status-chip st-{{ r.status|slugify }}">{{ r.status }}</span></td>
+          <td>{% if r.rating %}<span class="vd-rate">{{ r.rating }}★</span>{% else %}<small>—</small>{% endif %}</td>
+          <td>{{ r.last_seen|date:'d M, H:i'|default:'—' }}</td>
+        </tr>{% endfor %}</tbody>
+      {% else %}<thead><tr><th>Name</th><th>Organisation</th><th>Completed</th><th>Time taken</th><th>Rating</th><th>Most useful</th><th>Feedback</th></tr></thead><tbody>
+        {% for r in t.rows %}<tr data-search="{{ r.name|lower }} {{ r.email|lower }} {{ r.organisation|lower }}">
+          <td><span class="vd-person"><span class="vd-avatar done">{{ r.initials }}</span><span><b>{{ r.name }}</b><small>{{ r.email|default:r.source }}</small></span></span></td>
+          <td>{{ r.organisation|default:'—' }}<small>{{ r.role }}</small></td>
+          <td>{{ r.completed_at|date:'d M Y' }}<small>{% if r.completions > 1 %}{{ r.completions }} cases completed{% else %}1 case{% endif %}</small></td>
+          <td>{% if r.minutes is not None %}{{ r.minutes }} min{% else %}—{% endif %}</td>
+          <td>{% if r.rating %}<span class="vd-rate">{{ r.rating }}★</span>{% else %}<small>No survey yet</small>{% endif %}</td>
+          <td>{{ r.useful|default:'—' }}{% if r.intent %}<small>Next: {{ r.intent }}</small>{% endif %}</td>
+          <td class="vd-msg">{{ r.comment|default:'—'|linebreaksbr }}</td>
+        </tr>{% endfor %}</tbody>{% endif %}
+    </table></div><p class="vd-noresults" hidden>No one matches your search in this list.</p>
+    {% else %}<div class="vd-empty"><strong>{% if t.key == 'pilot' %}No pilot requests yet{% elif t.key == 'waitlist' %}No one on the waitlist yet{% elif t.key == 'registered' %}No registrations yet{% elif t.key == 'completed' %}No completed walkthroughs yet{% else %}No other enquiries yet{% endif %}</strong><p>{% if t.key == 'pilot' or t.key == 'waitlist' %}Requests from the pilot form, the website and the post-walkthrough survey appear here.{% elif t.key == 'registered' %}People who create a workspace appear here.{% elif t.key == 'completed' %}Participants who take a case from scan to report appear here.{% else %}Demo, pricing, partnership and general enquiries appear here.{% endif %}</p></div>{% endif %}
+  </div>{% endfor %}
+</section>
+
+</div>{% endblock %}

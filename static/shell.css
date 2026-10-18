@@ -1,0 +1,41 @@
+/* App shell refinements: sidebar always shows profile + sign out */
+.sidebar{overflow-y:auto;overscroll-behavior:contain;padding-bottom:0;scrollbar-width:thin}
+.sidebar .brand{flex:none}
+.sidebar .nav-label{margin:30px 10px 10px}
+.sidebar .nav-label-tight{margin-top:22px}
+.sidebar .nav-item{padding:10px 14px;margin:3px 0}
+.sidebar-note{padding:16px 12px 12px;flex:none}
+.sidebar-note:first-of-type{margin-top:auto}
+.sidebar-foot{position:sticky;bottom:0;margin:0 -23px;padding:14px 23px 18px;background:#fff;border-top:1px solid var(--line);flex:none}
+.sidebar-foot .profile{border-top:0;padding-top:0;min-width:0}
+.sidebar-foot .profile>div{min-width:0}
+.sidebar-foot .profile strong,.sidebar-foot .profile small{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sidebar-foot .signout{margin:10px 0 0 47px;padding:0}
+.sidebar-foot .signout:hover{color:var(--teal);text-decoration:underline}
+@media (max-width:1250px){.sidebar-foot{margin:0 -17px;padding:12px 17px 16px}}
+@media (max-height:780px) and (min-width:801px){
+  .sidebar{padding-top:22px}
+  .sidebar .nav-label{margin:18px 10px 6px}
+  .sidebar .nav-item{padding:8px 12px;margin:2px 0}
+  .sidebar .nav-item span{font-size:18px}
+  .sidebar-note{display:none}
+  .sidebar-foot{margin-top:auto}
+}
+@media (max-width:800px){
+  .sidebar{overflow:visible}
+  .sidebar-foot{position:static;margin:0;padding:0;border:0;background:none}
+  .sidebar-foot form{position:absolute;right:18px;top:20px}
+  .sidebar-foot .signout{margin:0}
+}
+/* Logo never clipped by the scrolling sidebar */
+.sidebar .approved-logo{width:100%;max-width:208px;height:auto}
+/* Auth pages: footer aligned with the header grid */
+.entry-footer{max-width:1440px;padding:20px 5%;align-items:center}
+/* Phones: confidence value fits the large ring; long badges wrap or hide */
+@media (max-width:600px){
+  .confidence-card:not(.confidence-compact) .confidence-ring>span{font-size:21px;letter-spacing:-.6px}
+  .confidence-card:not(.confidence-compact) .confidence-ring small{font-size:10px}
+  .sr-head{flex-wrap:wrap}
+  .sr-version{display:none}
+  .page-heading{flex-wrap:wrap}
+}

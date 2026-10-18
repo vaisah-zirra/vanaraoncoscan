@@ -170,3 +170,67 @@ class ClinicalReviewTests(TestCase):
         SpecialistReview.objects.create(case=self.case)
         with self.assertRaises(ValidationError): self.save(data)
         self.assertNotIn('ROUTINE',dict(self.client.get(self.url).context['form'].fields['action'].choices))
+
+
+class ReportStageTests(ClinicalReviewTests.__bases__[0]):
+    setUp = ClinicalReviewTests.setUp
+    payload = ClinicalReviewTests.payload
+
+    def test_saving_care_plan_moves_to_report_stage(self):
+        response = self.client.post(self.url, self.payload())
+        stage = reverse('case-report-stage', args=[self.case.pk])
+        self.assertRedirects(response, stage)
+        page = self.client.get(stage)
+        self.assertContains(page, 'Your report is ready')
+        self.assertContains(page, 'Referral confirmed')
+        self.assertContains(page, reverse('case-report', args=[self.case.pk]))
+        self.assertContains(page, 'aria-current="step"', count=1)
+        # once a plan exists, the case pages lead with the report instead of burying it
+        for url in (self.url, reverse('case-detail', args=[self.case.pk])):
+            body = self.client.get(url).content.decode()
+            self.assertIn('Care plan confirmed · report ready', body)
+            self.assertNotIn('Keep the complete picture.', body)
+            self.assertIn(f'href="{stage}"', body)
+        self.client.get(reverse('case-report', args=[self.case.pk]))
+        self.client.get(reverse('case-report', args=[self.case.pk]))
+        self.assertEqual(CaseEvent.objects.filter(case=self.case, kind='CASE_REPORT_ISSUED').count(), 1)
+        detail = self.client.get(reverse('case-detail', args=[self.case.pk])).content.decode()
+        self.assertRegex(detail, r'<li class="js-done">\s*<a href="%s">' % stage)
+        self.assertContains(self.client.get(stage), 'Downloaded.')
+
+    def test_report_stage_needs_a_care_plan(self):
+        stage = reverse('case-report-stage', args=[self.case.pk])
+        pdf = reverse('case-report', args=[self.case.pk])
+        for url in (self.url, reverse('assessment-result', args=[self.case.pk]), reverse('case-detail', args=[self.case.pk])):
+            self.assertNotIn(pdf, self.client.get(url).content.decode(), url)
+        self.assertRedirects(self.client.get(stage), self.url)
+        self.assertNotIn(stage, self.client.get(self.url).content.decode())
+        self.client.force_login(self.other)
+        self.assertEqual(self.client.get(stage).status_code, 404)
+
+
+class ReportStageFeedbackTests(TestCase):
+    def test_walkthrough_participant_is_offered_rating_after_report(self):
+        from apps.validation.models import Participant, WalkthroughRound
+        user = get_user_model().objects.create_user(username='walker')
+        facility = Facility.objects.create(name='Pilot', slug='pilot-x', is_demo=True)
+        Membership.objects.create(user=user, facility=facility, role='FACILITY')
+        participant = Participant.objects.create(user=user, facility=facility, role='CLINICIAN', organisation='Clinic', research_consent_at=timezone.now())
+        patient = Patient.objects.create(facility=facility, reference='DEMO-A', display_name='Amina', is_synthetic=True)
+        case = Case.objects.create(patient=patient, status='ASSESSED')
+        QualityAssessment.objects.create(case=case, adequate=True, reason='Passed')
+        AIAssessment.objects.create(case=case, disposition='SUSPICIOUS', finding='Finding')
+        rnd = WalkthroughRound.objects.create(case=case, participant=participant, assessment_viewed_at=timezone.now())
+        self.client.force_login(user)
+        stage = reverse('case-report-stage', args=[case.pk])
+        data = {'request_id': str(uuid.uuid4()), 'version': case.updated_at.isoformat(), 'action': 'REFERRAL', 'notes': 'Reviewed.',
+                'destination': 'Breast clinic', 'urgency': 'PRIORITY', 'reason': 'Assess the finding.', 'confirmed': 'on'}
+        self.assertRedirects(self.client.post(reverse('clinician-review', args=[case.pk]), data), stage)
+        page = self.client.get(stage)
+        self.assertContains(page, 'data-report-feedback')
+        self.assertContains(page, reverse('round-status', args=[case.pk]))
+        self.assertFalse(self.client.get(reverse('round-status', args=[case.pk])).json()['prompt'])
+        WalkthroughRound.objects.filter(pk=rnd.pk).update(report_requested_at=timezone.now(), completed_at=timezone.now())
+        self.assertTrue(self.client.get(reverse('round-status', args=[case.pk])).json()['prompt'])
+        self.client.post(reverse('dismiss-feedback', args=[rnd.pk]))
+        self.assertNotContains(self.client.get(stage), 'data-report-feedback')

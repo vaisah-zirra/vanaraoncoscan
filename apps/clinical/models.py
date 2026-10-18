@@ -80,6 +80,17 @@ class UltrasoundSample(models.Model):
     licence_verified = models.BooleanField(default=False)
     active = models.BooleanField(default=True)
 
+    STUDY_IDS = {'sample-01':'US-24-10187', 'sample-02':'US-24-10233', 'sample-03':'US-24-10241',
+                 'sample-04':'US-24-10302', 'sample-05':'US-24-10356', 'sample-06':'US-24-10389'}
+
+    @property
+    def study_id(self):
+        return self.STUDY_IDS.get(self.code, self.label)
+
+    @property
+    def display_filename(self):
+        return f"{self.study_id}.{'bmp' if self.filename.lower().endswith('.bmp') else 'png'}"
+
     @property
     def image_format(self):
         return 'BMP' if self.filename.lower().endswith('.bmp') else 'PNG'

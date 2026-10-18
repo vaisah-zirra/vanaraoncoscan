@@ -63,7 +63,7 @@ class ReferralTests(TestCase):
   shared=specialist_content(self.case)
   self.assertEqual(shared['response'],report_data(self.case)['response'])
   response=self.client.get(reverse('case-detail',args=[self.case.pk]))
-  self.assertContains(response,shared['response'][0][1])
+  self.assertContains(response,'No teleradiology review has been requested')
   SpecialistReview.objects.create(case=self.case,reviewer=self.user,signed_at=timezone.now(),assessment='Recorded signed opinion',recommendation='Recorded plan')
   response=self.client.get(reverse('case-detail',args=[self.case.pk]))
   self.assertContains(response,'Recorded signed opinion');self.assertNotContains(response,'Automatic response')
