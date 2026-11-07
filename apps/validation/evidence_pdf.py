@@ -121,7 +121,7 @@ class EvidenceCanvas(canvas.Canvas):
                 self.drawString(42, 37, 'INTERNAL · CONTAINS PERSONAL CONTACT DETAILS · DO NOT SHARE WITHOUT CONSENT')
             else:
                 self.setFillColor(TEAL); self.setFont('Report-Bold', 7)
-                self.drawString(42, 37, 'Anonymised validation evidence · Prepared by Vanara Multi-Ventures')
+                self.drawString(42, 37, 'Anonymised validation evidence · Prepared by VanaraOncoScan')
             self.setFillColor(MUTED); self.setFont('Report', 6.5)
             self.drawString(42, 25, f"Generated {self.meta['generated']} · Data fingerprint {self.meta['fingerprint'][:16]}")
             self.drawRightString(A4[0] - 42, 25, f'Page {self._pageNumber} of {total}')
@@ -354,7 +354,7 @@ def render(d, kind='full'):
 
     out = BytesIO()
     doc = SimpleDocTemplate(out, pagesize=A4, leftMargin=42, rightMargin=42, topMargin=70, bottomMargin=62,
-                            title=f'VanaraOncoScan · {title}', author='Vanara Multi-Ventures', subject='Validation evidence')
+                            title=f'VanaraOncoScan · {title}', author='VanaraOncoScan', subject='Validation evidence')
     meta = {'band': band, 'reference': d['reference'], 'named': named, 'fingerprint': d['fingerprint'],
             'generated': when(d['generated'], '%d %b %Y, %H:%M')}
     doc.build(story, canvasmaker=lambda *a, **kw: EvidenceCanvas(*a, meta=meta, **kw))

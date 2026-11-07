@@ -507,6 +507,6 @@ def render_report(data):
         story.append(p('Image source: ' + sample.attribution + ' Licence: CC BY 4.0 (' + sample.licence_url + '). Original pixels unchanged.', 'small'))
 
     doc = SimpleDocTemplate(output, pagesize=A4, rightMargin=42, leftMargin=42, topMargin=70, bottomMargin=62,
-                            title='VanaraOncoScan breast ultrasound report - ' + case.patient.reference, author='Vanara Multi-Ventures', pageCompression=1)
+                            title='VanaraOncoScan breast ultrasound report - ' + case.patient.reference, author='VanaraOncoScan', pageCompression=1)
     doc.build(story, canvasmaker=lambda *a, **kw: NumberedCanvas(*a, report_meta={'reference': case.patient.reference + ' | ' + str(case.pk)[:8].upper(), 'revision': data['revision']}, **kw))
     return output.getvalue()
