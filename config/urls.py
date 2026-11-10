@@ -3,6 +3,7 @@ from django.contrib import admin
 from apps.accounts.views import DemoLoginView
 from django.contrib.auth import views as auth_views
 from django.urls import path
+from django.views.generic import TemplateView
 from apps.clinical.image_views import image_upload, sample_image, try_another_sample
 from apps.clinical.assessment_views import quality_check, assessment_result
 from apps.dashboard.views import dashboard, case_detail, new_assessment
@@ -25,6 +26,8 @@ from .seo import robots, sitemap
 urlpatterns = [
     path('robots.txt', robots, name='robots'),
     path('sitemap.xml', sitemap, name='sitemap'),
+    path('terms/', TemplateView.as_view(template_name='legal/terms.html'), name='terms'),
+    path('privacy-policy/', TemplateView.as_view(template_name='legal/privacy_policy.html'), name='privacy-policy'),
     path('', include('apps.validation.urls')),
     path('', landing, name='landing'),
     path('specialist-reviews/', specialist_reviews, name='specialist-reviews'),
