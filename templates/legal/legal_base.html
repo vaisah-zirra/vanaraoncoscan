@@ -1,0 +1,14 @@
+{% load static %}<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>{% block title %}Legal{% endblock %} · VanaraOncoScan</title><link rel="stylesheet" href="{% static 'validation.css' %}?v=1"><link rel="stylesheet" href="{% static 'brand.css' %}?v=approved1">
+<style>
+.legal-main{max-width:760px;margin:0 auto;padding:40px 20px 72px}
+.legal-main h2{margin:6px 0 6px}
+.legal-meta{color:#5b6b7a;font-size:.9rem;margin:0 0 28px}
+.legal-main .v-prose h3{margin:30px 0 8px}
+.legal-main .v-prose ul{margin:8px 0 14px 1.2em;padding:0}
+.legal-main .v-prose li{margin:4px 0}
+.legal-callout{border-left:4px solid #b45309;background:rgba(180,83,9,.08);padding:14px 16px;border-radius:6px;margin:0 0 24px}
+.legal-toc{display:flex;gap:16px;flex-wrap:wrap;margin:0 0 24px;font-size:.92rem}
+</style></head>
+<body class="entry-page"><header class="entry-header"><a class="entry-brand" href="{% url 'landing' %}">{% include 'brand/logo.html' %}</a><a href="{% url 'landing' %}">Back to the platform ↗</a></header>
+<main class="legal-main" id="main">{% block content %}{% endblock %}</main>
+<footer class="entry-footer"><span>Vanara Multi-Ventures · <a href="mailto:info@vanaraoncoscan.cyou">info@vanaraoncoscan.cyou</a> · <a href="tel:+2348137006617">+234 813 700 6617</a></span><span><a href="{% url 'terms' %}">Terms of Use</a> · <a href="{% url 'privacy-policy' %}">Privacy Policy</a></span></footer></body></html>
