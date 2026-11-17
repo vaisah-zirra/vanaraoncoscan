@@ -7,7 +7,7 @@ from django.views.decorators.http import require_safe
 def robots(request):
     return HttpResponse(
         'User-agent: *\nAllow: /\nDisallow: /access/\n'
-        'Sitemap: https://vanaraoncoscan.cyou/sitemap.xml\n',
+        'Sitemap: https://vanaraoncoscan.tech/sitemap.xml\n',
         content_type='text/plain',
     )
 
@@ -18,6 +18,6 @@ def sitemap(request):
     return HttpResponse(
         '<?xml version="1.0" encoding="UTF-8"?>\n'
         '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'
-        '<url><loc>https://vanaraoncoscan.cyou/</loc></url></urlset>',
+        '<url><loc>https://vanaraoncoscan.tech/</loc></url></urlset>',
         content_type='application/xml',
     )
